@@ -1,4 +1,4 @@
-module gocrub
+module Go_curb
 
 go 1.21.3
 
