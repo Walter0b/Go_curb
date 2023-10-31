@@ -2,7 +2,7 @@ package routes
 
 import (
 	"Go_curb/tableTypes"
-	"log"
+	// "log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -74,7 +74,7 @@ func CustomerRoutes(r *gin.Engine, db *gorm.DB) {
 	r.POST("/customers", func(c *gin.Context) {
 		var customer tableTypes.Customer
 		if err := c.ShouldBindJSON(&customer); err != nil {
-			log.Println(customer)
+			// log.Println(customer)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -86,5 +86,18 @@ func CustomerRoutes(r *gin.Engine, db *gorm.DB) {
 
 		c.JSON(http.StatusCreated, customer)
 	})
+	
+	r.DELETE("/customers/:id", func(c *gin.Context) {
+		customerID := c.Param("id")
+
+		if err := db.Where("id = ?", customerID).Delete(&tableTypes.Customer{}).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	
+		c.JSON(http.StatusOK, gin.H{"message": "Customer deleted successfully"})
+	})
+	
+	
 
 }
