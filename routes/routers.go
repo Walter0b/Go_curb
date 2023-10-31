@@ -2,7 +2,6 @@ package routes
 
 import (
 	"Go_curb/tableTypes"
-	// "log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,7 +33,7 @@ func CustomerRoutes(r *gin.Engine, db *gorm.DB) {
 
 		c.JSON(http.StatusCreated, customer)
 	})
-	
+
 	r.DELETE("/customers/:id", func(c *gin.Context) {
 		customerID := c.Param("id")
 
@@ -42,10 +41,8 @@ func CustomerRoutes(r *gin.Engine, db *gorm.DB) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-	
+
 		c.JSON(http.StatusOK, gin.H{"message": "Customer deleted successfully"})
 	})
-	
-	
 
 }
