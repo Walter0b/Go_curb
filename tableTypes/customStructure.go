@@ -1,6 +1,9 @@
 package tableTypes
 
+import "gorm.io/gorm"
+
 type Customer struct {
+	gorm.Model
 	ID                int `gorm:"primaryKey;"`
 	Customer_name     string
 	Street            string
@@ -27,7 +30,6 @@ type Customer struct {
 	Already_used      int64
 	Ab_key            string
 	Tmc_client_number string
-
 }
 
 func (Customer) TableName() string {
