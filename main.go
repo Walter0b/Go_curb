@@ -6,6 +6,7 @@ import (
 	"Go_curb/routes"
 	"Go_curb/tableTypes"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +16,11 @@ func init() {
 
 func main() {
 	r := gin.Default()
+
+	// Use the CORS middleware
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"}
+	r.Use(cors.New(config))
 
 	// Initialize the GORM database connection using the dbConnect package
 	db, err := dbConnect.InitDB()
