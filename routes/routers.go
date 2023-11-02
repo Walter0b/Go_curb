@@ -115,7 +115,7 @@ func CustomerRoutes(r *gin.Engine, db *gorm.DB) {
     
     // DELETE /customers/:id - Delete a specific customer by ID
 	// http://your-api-domain/customers/1
-    r.DELETE("/customers/:id", func(c *gin.Context) {
+    r.DELETE("/customer/:id", func(c *gin.Context) {
         customerID := c.Param("id")
 
         if err := db.Where("id = ?", customerID).Delete(&tableTypes.Customer{}).Error; err != nil {
