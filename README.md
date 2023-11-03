@@ -16,22 +16,21 @@ Brief project description and its purpose.
 
 ## Prerequisites
 
-
 - Go 1.16 or higher
 - PostgreSQL database
 - Any other dependencies
 
 ## Getting Started
 
-
 ### Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/your-project.git
+   git clone https://github.com/Walter0b/Go_curb.git
    cd your-project
    ```
-Build the project:
+   Build the project:
+
 ```bash
 go build
 ```
@@ -42,29 +41,26 @@ The script expects the following folder structure:\
 \
 project_root
 
-    
-    ┌── Go_crub                   
-    │ 
-    ├── dbConnect                   
+    ┌── Go_crub
+    │
+    ├── dbConnect
     │ └── database.go
     │
-    ├── initializers                   
+    ├── initializers
     │ └── loadEnv.go
     │
-    ├── routes                 
+    ├── routes
     │ └── routes.go
     │
-    ├── tableTypes                   
+    ├── tableTypes
     │ └── customStructure.go
     │
-    ├── test                   
+    ├── test
     │ └── query.sql
     │
     └── README.md
 
-
 ### Configuration
-
 
 ### Usage
 
@@ -75,4 +71,3 @@ project_root
 ### Contributing
 
 ### License
-

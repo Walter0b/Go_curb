@@ -1,9 +1,9 @@
 package main
 
 import (
-	"Go_curb/dbConnect"
-	"Go_curb/initializers"
-	"Go_curb/routes"
+	"Go_curb/Database/dbConnect"
+	"Go_curb/Database/initializers"
+	"Go_curb/Database/routes"
 	"Go_curb/tableTypes"
 
 	"github.com/gin-gonic/gin"
@@ -20,14 +20,13 @@ func main() {
 	db, err := dbConnect.InitDB()
 	if err != nil {
 		// Handle the error as needed
-		// You can log the error and exit the application, for example
 		return
 	}
 
 	// Migrate the GORM models
 	db.AutoMigrate(&tableTypes.Customer{})
 
-	// Pass the GORM DB instance to your routes
+	// Pass the GORM DB instance to the routes
 	routes.CustomerRoutes(r, db)
 
 	r.Run(":8080")
