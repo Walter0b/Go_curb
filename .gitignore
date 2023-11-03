@@ -2,3 +2,5 @@
 **/.DS_Store
 /tmp
 .env
+tmp
+.vscode

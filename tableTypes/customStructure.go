@@ -27,9 +27,23 @@ type Customer struct {
 	Already_used      int64
 	Ab_key            string
 	Tmc_client_number string
-
+}
+type Currency struct {
+	ID   int `gorm:"primaryKey;"`
+	Name string
+}
+type Country struct {
+	ID   int `gorm:"primaryKey;"`
+	Name string
 }
 
+func (Country) TableName() string {
+	return "country"
+}
+
+func (Currency) TableName() string {
+	return "currency"
+}
 func (Customer) TableName() string {
 	return "customer"
 }

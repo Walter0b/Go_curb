@@ -6,6 +6,7 @@ import (
 	"Go_curb/Database/routes"
 	"Go_curb/tableTypes"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +16,16 @@ func init() {
 
 func main() {
 	r := gin.Default()
+
+	// Use the CORS middleware
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"POST", "GET", "PUT", "OPTIONS", "DELETE"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma"}
+	config.ExposeHeaders = []string{"Content-Length"}
+	config.AllowCredentials = true
+
+	r.Use(cors.New(config))
 
 	// Initialize the GORM database connection using the dbConnect package
 	db, err := dbConnect.InitDB()

@@ -1,0 +1,76 @@
+
+                                        Table "public.customer"
+        Column        |       Type        | Collation | Nullable |               Default                
+----------------------+-------------------+-----------+----------+--------------------------------------
+ id                   | integer           |           | not null | nextval('customer_id_seq'::regclass)
+ customer_name        | character varying |           | not null | 
+ street               | character varying |           |          | 
+ city                 | character varying |           |          | 
+ state                | character varying |           |          | 
+ zip_code             | character varying |           |          | 
+ notes                | text              |           |          | 
+ terms                | integer           |           |          | 
+ account_number       | character varying |           |          | 
+ tax_id               | character varying |           |          | 
+ balance              | money             |           |          | 
+ credit_limit         | money             |           |          | 
+ is_active            | boolean           |           |          | true
+ is_sub_agency        | boolean           |           | not null | false
+ opening_balance      | money             |           |          | 0
+ language             | ab_lang           |           |          | 
+ slug                 | bigint            |           | not null | nextval('slug_sequence'::regclass)
+ id_currency          | integer           |           | not null | 
+ id_country           | integer           |           |          | 
+ irs_share_key        | text              |           |          | 
+ currency_rate        | double precision  |           |          | 1
+ agency               | text              |           |          | 'AB'::text
+ opening_balance_date | date              |           |          | 
+ avoid_deletion       | boolean           |           |          | false
+ is_editable          | boolean           |           |          | true
+ alias                | text              |           |          | 
+ already_used         | integer           |           | not null | 0
+ ab_key               | text              |           |          | 
+ tmc_client_number    | text              |           |          | 
+Indexes:
+    "customer_pk" PRIMARY KEY, btree (id) WITH (fillfactor='10')
+    "customer_ab_key_uindex" UNIQUE, btree (ab_key)
+    "customer_account_number_uk" UNIQUE CONSTRAINT, btree (account_number)
+    "customer_alias_uindex" UNIQUE, btree (alias)
+    "customer_name_uk" UNIQUE CONSTRAINT, btree (customer_name, id_currency)
+    "customer_slug_uk" UNIQUE CONSTRAINT, btree (slug) WITH (fillfactor='100')
+    "customer_tmc_client_number_uindex" UNIQUE, btree (tmc_client_number)
+Check constraints:
+    "credit_limit_positive" CHECK (credit_limit >= 0::money)
+    "customer_alias_ck" CHECK (avoid_deletion IS TRUE AND alias <> ''::text OR avoid_deletion IS NOT TRUE AND true)
+    "customer_opening_balance_date_ck" CHECK (opening_balance IS NOT NULL AND opening_balance_date IS NOT NULL OR (opening_balance IS NULL OR opening_balance = 0::money) AND opening_balance_date IS NULL)
+    "id_check" CHECK (id > 0)
+Foreign-key constraints:
+    "country_fk" FOREIGN KEY (id_country) REFERENCES country(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "currency_fk" FOREIGN KEY (id_currency) REFERENCES currency(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+Referenced by:
+    TABLE "accounting_journal" CONSTRAINT "accounting_journal_customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "custom_field" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "template_customer" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "contact_person" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "commission_rule" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "quote" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "opening_balance_entry" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "misc_booking" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "car_booking" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "hotel_booking" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "invoice" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "credit_note" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "customer_message" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "activity" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) ON UPDATE CASCADE
+    TABLE "payment_received" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "payment_made" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "journal_entry" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) ON UPDATE CASCADE
+    TABLE "air_booking" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "irs_share" CONSTRAINT "irs_share_id_customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+Triggers:
+    ab_push_accounting_journal AFTER UPDATE ON customer FOR EACH ROW EXECUTE FUNCTION ab_accounting_engine_opening_balance()
+    trg_customer_nulliff BEFORE INSERT OR UPDATE ON customer FOR EACH ROW EXECUTE FUNCTION ab_trg_customer_nulliff()
+    trg_delete_ob_crn BEFORE DELETE ON customer FOR EACH ROW EXECUTE FUNCTION ab_delete_ob_crn()
+    trg_delete_ob_invoice BEFORE DELETE ON customer FOR EACH ROW EXECUTE FUNCTION ab_delete_ob_invoice()
+    trg_notify_master_table AFTER INSERT OR DELETE OR UPDATE ON customer FOR EACH ROW EXECUTE FUNCTION fn_notify_master_table()
+    trg_notify_mat_view AFTER INSERT OR DELETE OR UPDATE ON customer FOR EACH STATEMENT EXECUTE FUNCTION fn_notify_mat_view()
