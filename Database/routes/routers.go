@@ -43,7 +43,7 @@ func CustomerRoutes(r *gin.Engine, db *gorm.DB) {
         }
         c.JSON(http.StatusOK, customerID)
     })
-	 // GET / - Retrieve all Id from currencys
+	 // GET / - Retrieve all Id from currency
 	// http://your-api-domain/
 	r.GET("/Currencies", func(c *gin.Context) {
 		var currencies []tableTypes.Currency
