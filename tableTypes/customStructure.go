@@ -28,14 +28,13 @@ type Customer struct {
 	Ab_key            string
 	Tmc_client_number string
 }
-type Currency struct {
-	ID   int `gorm:"primaryKey;"`
+type Entity struct {
+	ID   int64 `gorm:"primaryKey"`
 	Name string
 }
-type Country struct {
-	ID   int `gorm:"primaryKey;"`
-	Name string
-}
+
+type Currency Entity
+type Country Entity
 
 func (Country) TableName() string {
 	return "country"
