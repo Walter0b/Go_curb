@@ -1,51 +1,114 @@
 package routes
 
 import (
-    "Go_curb/tableTypes"
-    "net/http"
-    "net/url"
-    "strconv"
+	"Go_curb/tableTypes"
+	"net/http"
+	"strconv"
 
-    "github.com/gin-gonic/gin"
-    "gorm.io/gorm"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func CustomerRoutes(r *gin.Engine, db *gorm.DB) {
-    // GET / - Retrieve all customers
-	// http://your-api-domain/
-    r.GET("/", func(c *gin.Context) {
-        var customers []tableTypes.Customer
-        if err := db.Find(&customers).Error; err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
-        c.JSON(http.StatusOK, customers)
-    })
 
-    // GET /customer - Retrieve a specific customer by ID
-	//  http://your-api-domain/customer?id=1
+	// GET /customers?page=1&pageSize=10 - Retrieve all customers with pagination
+	r.GET("/customers", func(c *gin.Context) {
+		page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+		page += page
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
+			return
+		}
 
-    r.GET("/customer", func(c *gin.Context) {
-        Host := c.Request.URL.RequestURI()
-        myUrl, _ := url.Parse(Host)
-        params, _ := url.ParseQuery(myUrl.RawQuery)
+		pageSize, err := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+		if err != nil || pageSize < 1 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
+			return
+		}
 
-        var IdValue string
-        for key := range params {
-            IdValue = key
-        }
-        id, _ := strconv.Atoi(IdValue)
+		var customers []tableTypes.Customer
+		var totalRowCount int64 // Total count of records
 
-        var customerID = tableTypes.Customer{ID: id}
-        if err := db.First(&customerID).Error; err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
-        c.JSON(http.StatusOK, customerID)
-    })
-	 // GET / - Retrieve all Id from currency
-	// http://your-api-domain/
-	r.GET("/Currencies", func(c *gin.Context) {
+		// Count total records
+		if err := db.Model(&tableTypes.Customer{}).Count(&totalRowCount).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		offset := (page - 1) * pageSize
+
+		if err := db.Limit(pageSize).Offset(offset).Find(&customers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		response := gin.H{
+			"data":          customers,     // Data for the current page
+			"totalRowCount": totalRowCount, // Total count of records
+		}
+
+		c.JSON(http.StatusOK, response)
+	})
+
+	// GET /customers/:id - Retrieve a specific customer by ID
+	r.GET("/customers/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		customerID := tableTypes.Customer{}
+		if err := db.First(&customerID, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Customer not found"})
+			return
+		}
+		c.JSON(http.StatusOK, customerID)
+	})
+
+	// PUT /customers/:id - Update a specific customer by ID
+	r.PUT("/customers/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		customerID := tableTypes.Customer{}
+		if err := db.First(&customerID, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Customer not found"})
+			return
+		}
+
+		if err := c.ShouldBindJSON(&customerID); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if err := db.Save(&customerID).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, customerID)
+	})
+
+	// POST /customers - Create a new customer
+	r.POST("/customers", func(c *gin.Context) {
+		var customer tableTypes.Customer
+		if err := c.ShouldBindJSON(&customer); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		if err := db.Create(&customer).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, customer)
+	})
+
+	// DELETE /customers/:id - Delete a specific customer by ID
+	r.DELETE("/customers/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		if err := db.Where("id = ?", id).Delete(&tableTypes.Customer{}).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Customer not found"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Customer deleted successfully"})
+	})
+	r.GET("/currencies", func(c *gin.Context) {
 		var currencies []tableTypes.Currency
 		if err := db.Find(&currencies).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -53,10 +116,9 @@ func CustomerRoutes(r *gin.Engine, db *gorm.DB) {
 		}
 		c.JSON(http.StatusOK, currencies)
 	})
-	
- // GET / - Retrieve all Id from countries
-	// http://your-api-domain/
-	r.GET("/Countries", func(c *gin.Context) {
+
+	// GET / - Retrieve all Id from countries
+	r.GET("/countries", func(c *gin.Context) {
 		var Countries []tableTypes.Country
 		if err := db.Find(&Countries).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -64,65 +126,4 @@ func CustomerRoutes(r *gin.Engine, db *gorm.DB) {
 		}
 		c.JSON(http.StatusOK, Countries)
 	})
-	
-    // PUT /customer - Update a specific customer by ID
-	// http://your-api-domain/customer?id=1
-    r.PUT("/customer", func(c *gin.Context) {
-        Host := c.Request.URL.RequestURI()
-        myUrl, _ := url.Parse(Host)
-        params, _ := url.ParseQuery(myUrl.RawQuery)
-
-        var IdValue string
-        for key := range params {
-            IdValue = key
-        }
-        id, _ := strconv.Atoi(IdValue)
-
-        var customerID = tableTypes.Customer{ID: id}
-        if err := db.First(&customerID).Error; err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
-
-        if err := c.ShouldBindJSON(&customerID); err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-            return
-        }
-        if err := db.Save(&customerID).Error; err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-            return
-        }
-
-        c.JSON(http.StatusOK, customerID)
-    })
-
-    // POST /customers - Create a new customer
-	// http://your-api-domain/customers
-    r.POST("/customers", func(c *gin.Context) {
-        var customer tableTypes.Customer
-        if err := c.ShouldBindJSON(&customer); err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-            return
-        }
-
-        if err := db.Create(&customer).Error; err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
-
-        c.JSON(http.StatusCreated, customer)
-    })
-    
-    // DELETE /customers/:id - Delete a specific customer by ID
-	// http://your-api-domain/customers/1
-    r.DELETE("/customer/:id", func(c *gin.Context) {
-        customerID := c.Param("id")
-
-        if err := db.Where("id = ?", customerID).Delete(&tableTypes.Customer{}).Error; err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
-    
-        c.JSON(http.StatusOK, gin.H{"message": "Customer deleted successfully"})
-    })
 }
