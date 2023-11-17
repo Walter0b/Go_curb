@@ -1,0 +1,527 @@
+                                        Table "public.air_booking"
+           Column            |          Type          | Collation | Nullable |                                                                                                                                                                                        Default                                                                                                                                                                                         
+-----------------------------+------------------------+-----------+----------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ id                          | integer                |           | not null | nextval('travel_item_id_seq'::regclass)
+ traveler_name               | character varying      |           | not null | 
+ channel                     | ab_gds                 |           |          | 'non_gds'::ab_gds
+ transaction_type            | ab_transaction_type    |           | not null | 
+ issuing_date                | date                   |           | not null | 
+ product_type                | ab_travel_type         |           | not null | 
+ pnr                         | character varying      |           |          | 
+ published_fare              | money                  |           | not null | 0
+ negotiated_fare             | money                  |           |          | 
+ penality                    | money                  |           |          | 
+ total_fare_net              | money                  |           |          | 
+ total_fees_net              | money                  |           |          | 
+ total_taxes_fees            | money                  |           |          | 
+ total_taxes_fare            | money                  |           |          | 
+ total_taxes_commission      | money                  |           |          | 
+ total_price                 | money                  |           |          | 
+ commission_rate             | real                   |           |          | 0
+ commission_amount           | money                  |           |          | 0
+ commission_type             | ab_value_type          |           |          | 'rate'::ab_value_type
+ discount_amount             | money                  |           |          | 
+ discount_rate               | double precision       |           |          | 
+ discount_type               | ab_value_type          |           |          | 
+ remittance                  | money                  |           |          | 
+ markup                      | money                  |           |          | 
+ total_net_collection        | money                  |           |          | 
+ total_share                 | money                  |           |          | 
+ notes                       | character varying      |           |          | 
+ fop                         | ab_fop                 |           | not null | 
+ fop_ref                     | character varying      |           |          | 
+ loyalty_card                | character varying      |           |          | 
+ booking_oid                 | character varying      |           |          | 
+ issuing_oid                 | character varying      |           |          | 
+ iata                        | character varying      |           |          | 
+ description                 | text                   |           |          | 
+ traveler_number             | smallint               |           |          | 
+ currency_rate               | double precision       |           | not null | 1
+ is_incomplete               | boolean                |           |          | false
+ reason                      | character varying      |           |          | 
+ trip_merged_number          | character varying      |           |          | 
+ status                      | ab_booking_status      |           | not null | 
+ agency                      | character varying      |           | not null | 'NO'::character varying
+ adj_type                    | ab_credit_debit        |           |          | 
+ coz_of_commission           | boolean                |           | not null | false
+ coz_of_consultant           | boolean                |           | not null | false
+ coz_of_destination          | boolean                |           | not null | false
+ slug                        | bigint                 |           | not null | nextval('slug_sequence'::regclass)
+ coz_of_currency             | boolean                |           | not null | false
+ void_published_fare         | money                  |           |          | 
+ void_negotiated_fare        | money                  |           |          | 
+ void_penality               | money                  |           |          | 
+ void_total_fare_net         | money                  |           |          | 
+ void_total_fees_net         | money                  |           |          | 
+ void_total_taxes_fees       | money                  |           |          | 
+ void_total_taxes_fare       | money                  |           |          | 
+ void_total_taxes_commission | money                  |           |          | 
+ void_total_price            | money                  |           |          | 
+ void_commission_rate        | real                   |           |          | 
+ void_commission_amount      | money                  |           |          | 
+ void_discount_amount        | money                  |           |          | 
+ void_discount_rate          | double precision       |           |          | 
+ void_remittance             | money                  |           |          | 
+ void_markup                 | money                  |           |          | 
+ void_total_net_collection   | money                  |           |          | 
+ void_total_share            | money                  |           |          | 
+ in_trigger                  | boolean                |           | not null | false
+ is_voucher                  | boolean                |           | not null | false
+ adj_number                  | character varying      |           | not null | ''::character varying
+ source                      | ab_travelitem_source   |           | not null | 'manual'::ab_travelitem_source
+ id_inventory                | integer                |           |          | 
+ rules_settings              | json                   |           |          | array_to_json(ARRAY['{"rule_key":"discount", "rule_label": "Discount", "rule_is_applicable": true}'::json, '{"rule_key":"fee","rule_label": "Service Fees", "rule_is_applicable": true}'::json, '{"rule_key":"tax", "rule_label": "Taxes", "rule_is_applicable": true}'::json, '{"rule_key":"consultant_share", "rule_label": "Consultant Share", "rule_is_applicable": true}'::json])
+ consultant_share_amount     | money                  |           |          | 
+ consultant_share_rate       | real                   |           |          | 
+ consultant_share_type       | ab_value_type          |           |          | 
+ coz_of_supplier             | boolean                |           | not null | false
+ total_all_net               | money                  |           |          | 0
+ total_taxes_all             | money                  |           |          | 0
+ net_commission              | money                  |           |          | 
+ total_fees                  | money                  |           |          | 
+ total_fees_and_markup       | money                  |           |          | 
+ fare_total                  | money                  |           |          | 
+ is_hidden                   | boolean                |           |          | false
+ adjusted_transaction        | ab_transaction_type    |           |          | 'adjustment'::ab_transaction_type
+ already_used                | integer                |           | not null | 0
+ is_group_sync               | boolean                |           |          | false
+ id_refund                   | integer                |           |          | 
+ fare_calculation            | text                   |           |          | 
+ full_fare                   | money                  |           |          | 
+ low_fare                    | money                  |           |          | 
+ crs_id                      | text                   |           |          | 
+ tour_code                   | text                   |           |          | 
+ reason_code                 | text                   |           |          | 
+ booking_date                | date                   |           |          | 
+ departure_date              | date                   |           |          | 
+ departure_time              | time without time zone |           |          | 
+ return_date                 | date                   |           |          | 
+ return_time                 | time without time zone |           |          | 
+ itinerary                   | character varying      |           |          | 
+ is_open                     | boolean                |           |          | 
+ destination                 | character varying      |           |          | 
+ int_dom                     | ab_destination         |           |          | 
+ cabin                       | ab_cabin               |           |          | 
+ class                       | character varying      |           |          | 
+ ticket_number               | bigint                 |           | not null | 
+ conjunction_number          | smallint               |           |          | 
+ document_type               | ab_document_type       |           |          | 
+ total_air_taxes             | money                  |           |          | 
+ exchange_number             | bigint                 |           |          | 
+ id_airline                  | integer                |           | not null | 
+ id_consultant               | integer                |           |          | 
+ id_traveler                 | integer                |           |          | 
+ id_supplier                 | integer                |           |          | 
+ id_currency                 | integer                |           |          | 
+ id_product                  | integer                |           | not null | 
+ id_agent_sign               | integer                |           | not null | 
+ id_trip                     | integer                |           |          | 
+ id_customer                 | integer                |           |          | 
+ id_invoice                  | integer                |           |          | 
+ id_credit_note              | integer                |           |          | 
+ id_quote                    | integer                |           |          | 
+ misc_data                   | json                   |           |          | 
+ id_payment_received         | integer                |           |          | 
+Indexes:
+    "air_booking_pk" PRIMARY KEY, btree (id)
+    "air_booking_adj_num_uk" UNIQUE CONSTRAINT, btree (adj_type, adj_number)
+    "air_booking_num_uk" UNIQUE CONSTRAINT, btree (transaction_type, ticket_number, adj_number, id_airline)
+Check constraints:
+    "air_booking_adjustment_ck" CHECK (transaction_type = 'adjustment'::ab_transaction_type AND adj_number IS NOT NULL OR transaction_type <> 'adjustment'::ab_transaction_type AND true)
+    "air_booking_discount_type_uk" CHECK (discount_amount <= commission_amount)
+    "air_fare_ck" CHECK (published_fare >= negotiated_fare)
+    "air_markup_ck" CHECK (markup = (published_fare - negotiated_fare))
+    "coz_consultant_ck" CHECK (coz_of_consultant = false AND id_consultant IS NOT NULL OR coz_of_consultant = true AND id_consultant IS NULL)
+    "coz_currency" CHECK (coz_of_currency = false AND id_currency IS NOT NULL OR coz_of_currency = true AND id_currency IS NULL)
+    "coz_destination_ck" CHECK (transaction_type <> 'adjustment'::ab_transaction_type AND (coz_of_destination = false AND int_dom IS NOT NULL OR coz_of_destination = true AND int_dom IS NULL) OR transaction_type = 'adjustment'::ab_transaction_type AND true)
+    "coz_of_commission_ck" CHECK (coz_of_commission = false AND commission_amount IS NOT NULL OR coz_of_commission = true AND commission_amount IS NULL)
+    "coz_supplier" CHECK (coz_of_supplier = false AND id_supplier IS NOT NULL OR coz_of_supplier = true AND id_supplier IS NULL)
+    "id_check" CHECK (id > 0)
+    "status_ck" CHECK (status <> 'invoiced'::ab_booking_status AND id_invoice IS NULL AND id_credit_note IS NULL OR status = 'invoiced'::ab_booking_status AND (id_invoice IS NOT NULL OR id_credit_note IS NOT NULL))
+Foreign-key constraints:
+    "agent_sign_fk" FOREIGN KEY (id_agent_sign) REFERENCES agent_sign(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "airline_fk" FOREIGN KEY (id_airline) REFERENCES airline(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "consultant_fk" FOREIGN KEY (id_consultant) REFERENCES consultant(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "credit_note_fk" FOREIGN KEY (id_credit_note) REFERENCES credit_note(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
+    "currency_fk" FOREIGN KEY (id_currency) REFERENCES currency(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "invoice_fk" FOREIGN KEY (id_invoice) REFERENCES invoice(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
+    "payment_received__fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE SET NULL
+    "product_fk" FOREIGN KEY (id_product) REFERENCES product(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "quote_fk" FOREIGN KEY (id_quote) REFERENCES quote(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    "supplier_fk" FOREIGN KEY (id_supplier) REFERENCES supplier(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "traveler_fk" FOREIGN KEY (id_traveler) REFERENCES traveler(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "trip_fk" FOREIGN KEY (id_trip) REFERENCES trip(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+Referenced by:
+    TABLE "segment" CONSTRAINT "air_booking_fk" FOREIGN KEY (id_air_booking) REFERENCES air_booking(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "air_taxes" CONSTRAINT "air_booking_fk" FOREIGN KEY (id_air_booking) REFERENCES air_booking(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "fee" CONSTRAINT "air_booking_fk" FOREIGN KEY (id_air_booking) REFERENCES air_booking(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "booking_remark" CONSTRAINT "air_booking_fk" FOREIGN KEY (id_air_booking) REFERENCES air_booking(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "collection_share" CONSTRAINT "air_booking_fk" FOREIGN KEY (id_air_booking) REFERENCES air_booking(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "local_taxes" CONSTRAINT "air_booking_fk" FOREIGN KEY (id_air_booking) REFERENCES air_booking(id) ON UPDATE CASCADE ON DELETE CASCADE
+Triggers:
+    ab_trg_acheck_agent_sign BEFORE INSERT OR UPDATE ON air_booking FOR EACH ROW EXECUTE FUNCTION ab_trg_check_agent_sign()
+    ab_trg_before_insert_check_ti_unicity BEFORE INSERT OR UPDATE ON air_booking FOR EACH ROW EXECUTE FUNCTION ab_check_ti_unicity()
+    ab_trg_before_insert_date_time BEFORE INSERT OR UPDATE ON air_booking FOR EACH ROW EXECUTE FUNCTION ab_before_insert_travel_item()
+    ab_trg_before_update_apply_fee BEFORE UPDATE ON air_booking FOR EACH ROW EXECUTE FUNCTION ab_fee_engine()
+    ab_trg_before_update_apply_tax BEFORE UPDATE ON air_booking FOR EACH ROW EXECUTE FUNCTION ab_tax_engine()
+    ab_trg_before_update_apply_ushare BEFORE UPDATE ON air_booking FOR EACH ROW EXECUTE FUNCTION ab_com_share_engine()
+    ab_trg_before_update_apply_vtotal BEFORE UPDATE ON air_booking FOR EACH ROW EXECUTE FUNCTION ab_total_amount_update()
+    ab_trg_mark_as_refunded AFTER INSERT OR UPDATE ON air_booking FOR EACH ROW EXECUTE FUNCTION ab_trg_mark_as_refunded()
+    ab_trg_sync_ti_sync BEFORE INSERT OR DELETE OR UPDATE ON air_booking FOR EACH ROW EXECUTE FUNCTION ab_foreign_ti_sync()
+    trg_notify_master_table AFTER INSERT OR DELETE OR UPDATE ON air_booking FOR EACH ROW EXECUTE FUNCTION fn_notify_master_table()
+    trg_notify_mat_view AFTER INSERT OR DELETE OR UPDATE ON air_booking FOR EACH STATEMENT EXECUTE FUNCTION fn_notify_mat_view()
+Inherits: travel_item
+
+
+                                            Table "public.invoice"
+       Column       |            Type             | Collation | Nullable |               Default               
+--------------------+-----------------------------+-----------+----------+-------------------------------------
+ id                 | integer                     |           | not null | nextval('invoice_id_seq'::regclass)
+ creation_date      | timestamp without time zone |           | not null | now()
+ invoice_number     | character varying           |           | not null | 
+ status             | ab_invoice_status           |           | not null | 
+ due_date           | date                        |           |          | 
+ amount             | money                       |           | not null | 0
+ balance            | money                       |           |          | 
+ purchase_order     | character varying           |           |          | 
+ customer_notes     | character varying           |           |          | 
+ terms              | integer                     |           |          | 
+ terms_conditions   | character varying           |           |          | 
+ credit_apply       | money                       |           |          | 
+ rate               | double precision            |           | not null | 1
+ net_amount         | money                       |           | not null | 
+ tax_amount         | money                       |           |          | 0
+ base_amount        | money                       |           | not null | 
+ detail_taxes       | json                        |           |          | 
+ slug               | bigint                      |           | not null | nextval('slug_sequence'::regclass)
+ id_customer        | integer                     |           | not null | 
+ void_summary       | json                        |           |          | 
+ credit_used        | money                       |           |          | 0
+ email              | character varying           |           |          | 
+ printed_name       | character varying           |           |          | 
+ hidden_field        | text                        |           |          | 
+ hidden_identifier   | text                        |           |          | 
+ already_used       | integer                     |           | not null | 0
+ is_opening_balance | boolean                     |           |          | false
+ tag                | tags                        |           |          | 
+Indexes:
+    "invoice_pk" PRIMARY KEY, btree (id) WITH (fillfactor='10')
+    "invoice_number_uk" UNIQUE CONSTRAINT, btree (invoice_number)
+    "invoice_slug_uk" UNIQUE CONSTRAINT, btree (slug) WITH (fillfactor='100')
+Check constraints:
+    "balance_ck" CHECK (balance = (amount - credit_apply - credit_used) AND balance >= 0::money)
+    "credit_apply_ck" CHECK (credit_apply >= 0::money)
+    "due_date_later" CHECK (due_date >= creation_date::date)
+    "id_check" CHECK (id > 0)
+    "invoice_status_ck" CHECK (status = 'paid'::ab_invoice_status AND balance = 0::money OR status = 'unpaid'::ab_invoice_status AND balance > 0::money OR status = 'void'::ab_invoice_status AND balance = 0::money)
+Foreign-key constraints:
+    "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+Referenced by:
+    TABLE "invoice_credit_note" CONSTRAINT "invoice_fk" FOREIGN KEY (id_invoice) REFERENCES invoice(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "invoice_payment_received" CONSTRAINT "invoice_fk" FOREIGN KEY (id_invoice) REFERENCES invoice(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "invoice_journal_entry" CONSTRAINT "invoice_fk" FOREIGN KEY (id_invoice) REFERENCES invoice(id) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "hotel_booking" CONSTRAINT "invoice_fk" FOREIGN KEY (id_invoice) REFERENCES invoice(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "misc_booking" CONSTRAINT "invoice_fk" FOREIGN KEY (id_invoice) REFERENCES invoice(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "car_booking" CONSTRAINT "invoice_fk" FOREIGN KEY (id_invoice) REFERENCES invoice(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "accounting_journal" CONSTRAINT "invoice_fk" FOREIGN KEY (id_invoice) REFERENCES invoice(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "air_booking" CONSTRAINT "invoice_fk" FOREIGN KEY (id_invoice) REFERENCES invoice(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "attached_file" CONSTRAINT "invoice_fk" FOREIGN KEY (id_invoice) REFERENCES invoice(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
+Triggers:
+    ab_update_already_used BEFORE UPDATE ON invoice FOR EACH ROW EXECUTE FUNCTION ab_update_already_used()
+    ab_update_balance AFTER DELETE ON invoice FOR EACH ROW EXECUTE FUNCTION ab_update_balance()
+    ab_update_status BEFORE INSERT OR UPDATE ON invoice FOR EACH ROW EXECUTE FUNCTION ab_update_status()
+    push_accounting_journal AFTER UPDATE ON invoice FOR EACH ROW EXECUTE FUNCTION ab_accounting_engine_invoice()
+    trg_notify_master_table AFTER INSERT OR DELETE OR UPDATE ON invoice FOR EACH ROW EXECUTE FUNCTION fn_notify_master_table()
+    trg_notify_mat_view AFTER INSERT OR DELETE OR UPDATE ON invoice FOR EACH STATEMENT EXECUTE FUNCTION fn_notify_mat_view()
+
+
+ {ID:0 CreationDate:2023-11-16 13:02:21.308055 +0100 WAT m=+18.708764366 InvoiceNumber: Status:unpaid DueDate:2023-12-31 00:00:00 +0000 UTC Amount:1 Balance: PurchaseOrder: CustomerNotes: Terms:0 TermsConditions: CreditApply: Rate: NetAmount: TaxAmount: BaseAmount: DetailTaxes:map[] Slug:0 IDCustomer:123 VoidSummary:map[] CreditUsed: Email: PrintedName: HiddenField: HiddenIdentifier: AlreadyUsed:0 IsOpeningBalance:false Tag:}
+
+ERROR:  invalid input syntax for type double precision: ""
+LINE 1: ...1-01 00:00:00','100.50','','','','','','',0,'','','','map[]'...
+                                                             ^
+
+
+
+                     | tags                     |           |          | 
+Indexes:
+    "payment_received_pk" PRIMARY KEY, btree (id)
+    "payment_number_uk" UNIQUE CONSTRAINT, btree (number)
+    "payment_received_slug_uk" UNIQUE CONSTRAINT, btree (slug)
+Check constraints:
+    "id_check" CHECK (id > 0)
+    "payment_received_balance_ck" CHECK (balance = (amount - used_amount))
+    "payment_received_status_ck" CHECK (status = 'used'::ab_payment_status AND balance = 0::money OR status = 'open'::ab_payment_status AND balance <> 0::money OR status = 'void'::ab_payment_status AND balance = 0::money)
+Foreign-key constraints:
+    "ab_payment_received_from account_fk" FOREIGN KEY (id_chart_of_accounts_from) REFERENCES chart_of_accounts(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "chart_of_accounts_fk" FOREIGN KEY (id_chart_of_accounts) REFERENCES chart_of_accounts(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "consultant_fk" FOREIGN KEY (id_consultant) REFERENCES consultant(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "currency_fk" FOREIGN KEY (id_currency) REFERENCES currency(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
+    "reconciliation_fk" FOREIGN KEY (id_reconciliation) REFERENCES reconciliation(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "supplier_fk" FOREIGN KEY (id_supplier) REFERENCES supplier(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+Referenced by:
+    TABLE "car_booking" CONSTRAINT "payment_received__fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "misc_booking" CONSTRAINT "payment_received__fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "hotel_booking" CONSTRAINT "payment_received__fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "air_booking" CONSTRAINT "payment_received__fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "accounting_journal" CONSTRAINT "payment_received_fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "journal_entry_payment_received" CONSTRAINT "payment_received_fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "payment_received_payment_made" CONSTRAINT "payment_received_payment_made__pmr_fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE CASCADE
+Triggers:
+    ab_update_already_used BEFORE UPDATE ON payment_received FOR EACH ROW EXECUTE FUNCTION ab_update_already_used()
+    ab_update_balance AFTER DELETE ON payment_received FOR EACH ROW EXECUTE FUNCTION ab_update_balance()
+    ab_update_status BEFORE INSERT OR UPDATE ON payment_received FOR EACH ROW EXECUTE FUNCTION ab_update_status()
+    push_accounting_journal AFTER UPDATE ON payment_received FOR EACH ROW EXECUTE FUNCTION ab_accounting_engine_payment_received()
+    trg_notify_master_table AFTER INSERT OR DELETE OR UPDATE ON payment_received FOR EACH ROW EXECUTE FUNCTION fn_notify_master_table()
+    trg_notify_mat_view AFTER INSERT OR DELETE OR UPDATE ON payment_received FOR EACH STATEMENT EXECUTE FUNCTION fn_notify_mat_view()
+
+
+
+
+Tables
+payment_received
+customer
+invoice
+invoice_payment_received
+Common
+Add paginations to invoice, customers and payments.
+
+Paginated Routes structure : GET /{resource}?page={pageNumber}&pageSize={numberOfRows}
+
+NB : {resource} : invoices | customers | payments
+
+Response :
+
+{
+  "data": [],
+  "pageNumber": 0, // default
+  "pageSize": 10, //default
+  "totalRowCount": 0 //totalNumberOfRecords
+}
+Travel Items
+GET /travel_items
+Query for travel items:
+
+ SELECT total_price,itinerary,traveler_name,ticket_number,conjunction_number,status
+	 FROM air_booking
+	 WHERE id_invoice IS NULL
+		 AND product_type='flight'
+		 AND transaction_type='sales'
+		 AND status = 'pending'
+
+Countries List
+GET /countries
+
+Query :
+SELECT * FROM country WHERE currency_code='XOF'
+Customers
+DB table name : 'customer'
+
+Constants (Backend) :
+
+currency Id (XOF) --> 550;
+Create ---> /POST customers
+
+payload (Frontend)
+
+{
+	"customerName":"",  //string
+	"state":"",       //string ----> country Name
+	"accountNumber":"", //string
+	"idCountry":0,  //Integer
+	"alias": "",   //String
+	"tmcClientNumber":"" //String
+
+}
+Required fields (Backend) :
+
+Id (integer)
+customer_name(string)
+state(String) ---> Optional
+account_number (String) - has unique constraint
+slug (bigInt) - has unique constraint
+Id_currency(integer)
+id_country(integer)
+is_active(boolean) ---> Optional , default to true
+ab_key (string)
+tmc_client_number(string) - has unique constraint
+Update ----> /PUT customers/id
+
+Constraints : none;
+Delete -----> /DELETE customers/Id
+
+Constraints : Can't delete a customer that has invoices.
+Invoice
+DB table name : 'invoice'
+
+Creation Process
+
+Choose a customer account from a list of customer account
+Task :Send a list of customers with their Id and names --->(route): GET /customers?fields=customer.id,customer.name
+
+Enter due date
+
+Select billable Travel items to add to invoice
+
+Save ---->(route) POST /invoices
+
+Payload (frontend) for post creation
+
+ new row for relation "invoice" violates check constraint "balance_ck"{
+  "idCustomer":0, //integer
+  "dueDate":"2022-10-19" //date in this format,
+  "amount":10000.00 //float. ---> SUM of total price of all travel_item linked to invoice
+  "travelItems":[
+	  {
+		  "id":0, //integer
+		  "totalPrice": 0.00 //float
+
+	}, ...
+  ]
+}
+
+when a new invoice is created if it has travel items, the id of the invoice is added to the corresponding air_booking records.
+
+Required fields for Invoice Creation
+
+creation_date (timestamp without timezone)
+invoice_number (string) , must be unique (generate)
+status (ab_invoice_status)
+due_date (date)
+amount (money) ---> net_amount + tax_amount. Tax_amount default to Zero (just save invoice amount directly in this field).
+balance (money) ---> (Not Required)
+net_amount (money) - (Not Used) ---> Total net Amount of travel Items within the invoice >> (might be used in case of constraints on amount)
+Credit apply (money) - (Not required) --->
+base_amount (money) ---> Amount converted in the base currency, if invoice is in base currency then same value from amount field >>
+slug (bigInt) , must be unique ---> should be a random value
+already_used(integer).
+tags (group data tags)
+id_customer (integer) --> ForeignKey
+void_summary (json) ---> used to keep the list of travel_item linked to invoice
+DB constraints:
+
+"status_ck" CHECK (status <> 'invoiced'::ab_booking_status AND id_invoice IS NULL AND id_credit_note IS NULL OR status = 'invoiced'::ab_booking_status AND (id_invoice IS NOT NULL OR id_credit_note IS NOT NULL))
+"balance_ck" CHECK (balance = (amount - credit_apply - credit_used) AND balance >= 0::money)
+"credit_apply_ck" CHECK (credit_apply >= 0::money)
+"due_date_later" CHECK (due_date >= creation_date::date)
+"id_check" CHECK (id > 0)
+"invoice_status_ck" CHECK (status = 'paid'::ab_invoice_status AND balance = 0::money OR status = 'unpaid'::ab_invoice_status AND balance > 0::money OR status = 'void'::ab_invoice_status AND balance = 0::money)
+Constraints on Update & Delete Operations
+
+An invoice can only be Updated / deleted if the invoice amount hasn't been charged i.e there's is no record in "invoice_payment_received" and " invoice.credit_apply == 0 " && "invoice.balance == invoice.amount"
+Update Operations :
+Change due Date
+Add or remove travel_items. ----> affects the amount of the invoice
+Credit_apply (in case the amount charged is refunded or changed). If changed Balance is recalculated accordingly. (formula ---> balance = amount -credit_apply)
+Routes :
+PUT invoices/id (full update), payload similar to that of POST
+DELETE invoices/id
+Validations & Constraints (Application Level) :
+
+Balance should be positive
+Credit apply should be positive
+Amount == Balance + credit apply
+Payments
+DB Table name : payment_received
+
+Creation Process
+
+Enter customer account name ----> GET /customers?fields=id,name
+
+When a customer is selected on the UI, a the list of customer unpaid invoices is shown in a table ----> (route):GET /customers/id/invoices?page=0&pageSize=10&paid=false
+Choose deposit Account ---> Deposit Account Id : 39, Account Name = PettyCash
+
+Chose payment Method : (Bank Transfer, Cash, Cheque, Mobile, Pos)
+
+Enter Amount
+
+Save ---->(route): POST /payments
+
+payload (frontend)
+
+{
+	"IdCustomer":"", //string
+	"amount": 0.00, // float
+	"paymentMode" : "". // string
+}
+Task : When we chose a customer, send the list of invoice not paid related to the customer
+
+Required fields for Payment Creation
+
+number(string) ---> Payment Number, unique (generate)
+date (date) ---> Payment date , # on save default to creation date.
+balance (money)
+amount (money)
+fop (enum --> ab_payment_fop) (string)
+used_amount (money) ---> default to 0
+status (enum --> ab_payment_status) --> Payment status
+base_amount (money) ----> Amount converted in base currency. same as amount
+slug (bigInt) ---> random value generated before save
+id_customer (integer) --> FK
+id_charts_of_accounts (integer) ---> FK, == deposit account Id.
+id_currency(integer) ---> Fk
+tags (group data tags)
+DB Check constraints:
+
+"id_check" CHECK (id > 0)
+"payment_received_balance_ck" CHECK (balance = (amount - used_amount))
+"payment_received_status_ck" CHECK (status = 'used'::ab_payment_status AND balance = 0::money OR status = 'open'::ab_payment_status AND balance <> 0::money OR status = 'void'::ab_payment_status AND balance = 0::money)
+Constraints on Update & Delete Operations
+
+Only payment records that haven't been used can be updated on deleted manually by the user.
+When an invoice payment is created, payment.used_amount is updated. When updated the payment balance is recalculated
+When an invoice payment is updated,
+if amount charged was increased, payment.used_amount is increased accordingly and the balance is recalculated
+if amount charged was decreased, payment.used_amount is decreased accordingly and the balance is recalculated
+Routes :
+PUT /payments/id
+DELETE /payments/id
+GET /customers/id/payments ---> get all payments linked to a particular customer
+
+GET /customers/id/payments?used=false ---> get list of all customer payments whose balance != 0
+
+Invoice Payment Received
+DB table name : invoice_payment_received
+
+Creation Process
+Payload (frontend) Creation process ---> POST /invoice/id/imputations
+
+	{
+
+		"idInvoice": 0, //integer
+		"imputations":[
+			{
+				"idPayment":0 //integer,
+				"amountApplied":0.00 // float
+
+			}, ...
+		]
+	}
+When records are created :
+invoice.credit_apply (invoice table) is updated
+all the amount charged (in invoice_payment_record) are summed up and the result is placed in credit_apply for the given invoice. (see update on invoice)
+Required fields :
+
+id_invoice (integer) FK
+id_payment_received(integer)
+amount_apply(money) << Amount applied >>
+payment_amount(money) << Amount applied from payment in base currency >> ?
+invoice_amount(money) << Amount applied from the invoice in base currency >> ?
+id(integer)
+tag(tags)
+Update and Delete Operations
+
+Routes :
+
+PATCH /invoice/id/imputations
+Rules :
+
+If the new value for amount charged is zero (and the previous value is > 0), then :
+
+amount applied(previous value) is deducted from invoice.credit_apply (in invoice table), and balance recalculated
+amount applied(previous value) is deducted from payment.used_amount(in payment_received table), and balance recalculated
+The record is deleted
+if the new value for amount charged is different from zero, and different from saved value, invoice.credit_apply and payment.used_amount are updated accordingly.
+

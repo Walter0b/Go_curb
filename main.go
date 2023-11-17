@@ -1,10 +1,8 @@
 package main
 
 import (
-	"Go_curb/Database/dbConnect"
 	"Go_curb/Database/initializers"
 	"Go_curb/Database/routes"
-	"Go_curb/tableTypes"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,6 +10,7 @@ import (
 
 func init() {
 	initializers.LoadEnvVariables()
+	initializers.ConnectDatabase()
 }
 
 func main() {
@@ -27,18 +26,6 @@ func main() {
 
 	r.Use(cors.New(config))
 
-	// Initialize the GORM database connection using the dbConnect package
-	db, err := dbConnect.InitDB()
-	if err != nil {
-		// Handle the error as needed
-		return
-	}
-
-	// Migrate the GORM models
-	db.AutoMigrate(&tableTypes.Customer{})
-
-	// Pass the GORM DB instance to the routes
-	routes.CustomerRoutes(r, db)
-
-	r.Run(":8080")
+	routes.Api(r)
+	r.Run()
 }

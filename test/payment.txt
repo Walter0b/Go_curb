@@ -1,0 +1,62 @@
+
+                                                             ^
+airbooks=> \d payment_received;
+                                              Table "public.payment_received"
+          Column           |           Type           | Collation | Nullable |                   Default                    
+---------------------------+--------------------------+-----------+----------+----------------------------------------------
+ id                        | integer                  |           | not null | nextval('payment_received_id_seq'::regclass)
+ number                    | character varying        |           | not null | 
+ date                      | date                     |           | not null | 
+ balance                   | money                    |           | not null | 
+ amount                    | money                    |           | not null | 
+ currency_rate             | double precision         |           | not null | 1
+ fop                       | ab_payment_fop           |           | not null | 
+ reference                 | character varying        |           |          | 
+ deducted_tax              | boolean                  |           | not null | false
+ note                      | character varying        |           |          | 
+ used_amount               | money                    |           | not null | 0
+ status                    | ab_payment_status        |           | not null | 
+ base_amount               | money                    |           | not null | 
+ is_reconciled             | boolean                  |           | not null | false
+ slug                      | bigint                   |           | not null | nextval('slug_sequence'::regclass)
+ id_customer               | integer                  |           |          | 
+ id_chart_of_accounts_from | bigint                   |           |          | 
+ type                      | ab_payment_received_type |           | not null | 
+ id_supplier               | integer                  |           |          | 
+ id_consultant             | integer                  |           |          | 
+ id_chart_of_accounts      | integer                  |           | not null | 
+ id_reconciliation         | integer                  |           |          | 
+ id_currency               | integer                  |           | not null | 
+ hidden_field              | text                     |           |          | 
+ transfert_type            | ab_transfert_from_type   |           |          | 
+ already_used              | integer                  |           | not null | 0
+ receipiant_name           | text                     |           |          | 
+ tag                       | tags                     |           |          | 
+
+
+
+                     | tags                     |           |          | 
+Indexes:
+    "payment_received_pk" PRIMARY KEY, btree (id)
+    "payment_number_uk" UNIQUE CONSTRAINT, btree (number)
+    "payment_received_slug_uk" UNIQUE CONSTRAINT, btree (slug)
+Check constraints:
+    "id_check" CHECK (id > 0)
+    "payment_received_balance_ck" CHECK (balance = (amount - used_amount))
+    "payment_received_status_ck" CHECK (status = 'used'::ab_payment_status AND balance = 0::money OR status = 'open'::ab_payment_status AND balance <> 0::money OR status = 'void'::ab_payment_status AND balance = 0::money)
+Foreign-key constraints:
+    "ab_payment_received_from account_fk" FOREIGN KEY (id_chart_of_accounts_from) REFERENCES chart_of_accounts(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "chart_of_accounts_fk" FOREIGN KEY (id_chart_of_accounts) REFERENCES chart_of_accounts(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "consultant_fk" FOREIGN KEY (id_consultant) REFERENCES consultant(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "currency_fk" FOREIGN KEY (id_currency) REFERENCES currency(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
+    "reconciliation_fk" FOREIGN KEY (id_reconciliation) REFERENCES reconciliation(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+    "supplier_fk" FOREIGN KEY (id_supplier) REFERENCES supplier(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
+Referenced by:
+    TABLE "car_booking" CONSTRAINT "payment_received__fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "misc_booking" CONSTRAINT "payment_received__fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "hotel_booking" CONSTRAINT "payment_received__fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "air_booking" CONSTRAINT "payment_received__fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE SET NULL
+    TABLE "accounting_journal" CONSTRAINT "payment_received_fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE CASCADE
+    TABLE "journal_entry_payment_received" CONSTRAINT "payment_received_fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE RESTRICT
+    TABLE "payment_received_payment_made" CONSTRAINT "payment_received_payment_made__pmr_fk" FOREIGN KEY (id_payment_received) REFERENCES payment_received(id) ON UPDATE CASCADE ON DELETE CASCADE

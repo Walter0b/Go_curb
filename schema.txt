@@ -1,76 +1,111 @@
-
-                                        Table "public.customer"
-        Column        |       Type        | Collation | Nullable |               Default                
-----------------------+-------------------+-----------+----------+--------------------------------------
- id                   | integer           |           | not null | nextval('customer_id_seq'::regclass)
- customer_name        | character varying |           | not null | 
- street               | character varying |           |          | 
- city                 | character varying |           |          | 
- state                | character varying |           |          | 
- zip_code             | character varying |           |          | 
- notes                | text              |           |          | 
- terms                | integer           |           |          | 
- account_number       | character varying |           |          | 
- tax_id               | character varying |           |          | 
- balance              | money             |           |          | 
- credit_limit         | money             |           |          | 
- is_active            | boolean           |           |          | true
- is_sub_agency        | boolean           |           | not null | false
- opening_balance      | money             |           |          | 0
- language             | ab_lang           |           |          | 
- slug                 | bigint            |           | not null | nextval('slug_sequence'::regclass)
- id_currency          | integer           |           | not null | 
- id_country           | integer           |           |          | 
- irs_share_key        | text              |           |          | 
- currency_rate        | double precision  |           |          | 1
- agency               | text              |           |          | 'AB'::text
- opening_balance_date | date              |           |          | 
- avoid_deletion       | boolean           |           |          | false
- is_editable          | boolean           |           |          | true
- alias                | text              |           |          | 
- already_used         | integer           |           | not null | 0
- ab_key               | text              |           |          | 
- tmc_client_number    | text              |           |          | 
-Indexes:
-    "customer_pk" PRIMARY KEY, btree (id) WITH (fillfactor='10')
-    "customer_ab_key_uindex" UNIQUE, btree (ab_key)
-    "customer_account_number_uk" UNIQUE CONSTRAINT, btree (account_number)
-    "customer_alias_uindex" UNIQUE, btree (alias)
-    "customer_name_uk" UNIQUE CONSTRAINT, btree (customer_name, id_currency)
-    "customer_slug_uk" UNIQUE CONSTRAINT, btree (slug) WITH (fillfactor='100')
-    "customer_tmc_client_number_uindex" UNIQUE, btree (tmc_client_number)
-Check constraints:
-    "credit_limit_positive" CHECK (credit_limit >= 0::money)
-    "customer_alias_ck" CHECK (avoid_deletion IS TRUE AND alias <> ''::text OR avoid_deletion IS NOT TRUE AND true)
-    "customer_opening_balance_date_ck" CHECK (opening_balance IS NOT NULL AND opening_balance_date IS NOT NULL OR (opening_balance IS NULL OR opening_balance = 0::money) AND opening_balance_date IS NULL)
-    "id_check" CHECK (id > 0)
-Foreign-key constraints:
-    "country_fk" FOREIGN KEY (id_country) REFERENCES country(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    "currency_fk" FOREIGN KEY (id_currency) REFERENCES currency(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-Referenced by:
-    TABLE "accounting_journal" CONSTRAINT "accounting_journal_customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) ON UPDATE CASCADE ON DELETE CASCADE
-    TABLE "custom_field" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
-    TABLE "template_customer" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    TABLE "contact_person" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
-    TABLE "commission_rule" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
-    TABLE "quote" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    TABLE "opening_balance_entry" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
-    TABLE "misc_booking" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    TABLE "car_booking" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    TABLE "hotel_booking" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    TABLE "invoice" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    TABLE "credit_note" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    TABLE "customer_message" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    TABLE "activity" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) ON UPDATE CASCADE
-    TABLE "payment_received" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
-    TABLE "payment_made" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    TABLE "journal_entry" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) ON UPDATE CASCADE
-    TABLE "air_booking" CONSTRAINT "customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT
-    TABLE "irs_share" CONSTRAINT "irs_share_id_customer_fk" FOREIGN KEY (id_customer) REFERENCES customer(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE
-Triggers:
-    ab_push_accounting_journal AFTER UPDATE ON customer FOR EACH ROW EXECUTE FUNCTION ab_accounting_engine_opening_balance()
-    trg_customer_nulliff BEFORE INSERT OR UPDATE ON customer FOR EACH ROW EXECUTE FUNCTION ab_trg_customer_nulliff()
-    trg_delete_ob_crn BEFORE DELETE ON customer FOR EACH ROW EXECUTE FUNCTION ab_delete_ob_crn()
-    trg_delete_ob_invoice BEFORE DELETE ON customer FOR EACH ROW EXECUTE FUNCTION ab_delete_ob_invoice()
-    trg_notify_master_table AFTER INSERT OR DELETE OR UPDATE ON customer FOR EACH ROW EXECUTE FUNCTION fn_notify_master_table()
-    trg_notify_mat_view AFTER INSERT OR DELETE OR UPDATE ON customer FOR EACH STATEMENT EXECUTE FUNCTION fn_notify_mat_view()
+                     List of relations
+ Schema |              Name              | Type  |  Owner   
+--------+--------------------------------+-------+----------
+ public | MY_TABLE                       | table | postgres
+ public | account_type                   | table | postgres
+ public | accounting_journal             | table | postgres
+ public | accounting_line_amount_label   | table | postgres
+ public | accounting_line_definition     | table | postgres
+ public | accounting_rule                | table | postgres
+ public | accounting_transaction_amount  | table | postgres
+ public | activity                       | table | postgres
+ public | agency                         | table | postgres
+ public | agent_sign                     | table | postgres
+ public | air_bkg                        | table | postgres
+ public | air_booking                    | table | postgres
+ public | air_taxes                      | table | postgres
+ public | airline                        | table | postgres
+ public | airport                        | table | postgres
+ public | attached_file                  | table | postgres
+ public | backup_travel_item             | table | postgres
+ public | bill                           | table | postgres
+ public | bill_journal_entry             | table | postgres
+ public | bill_payment_made              | table | postgres
+ public | bill_reconciliated             | table | postgres
+ public | booking_remark                 | table | postgres
+ public | booking_type                   | table | postgres
+ public | branches                       | table | postgres
+ public | bsp_booking                    | table | postgres
+ public | car_booking                    | table | postgres
+ public | chart_of_accounts              | table | postgres
+ public | collection_share               | table | postgres
+ public | commission_rule                | table | postgres
+ public | consultant                     | table | postgres
+ public | contact_person                 | table | postgres
+ public | country                        | table | postgres
+ public | country_airline                | table | postgres
+ public | credit_note                    | table | postgres
+ public | credit_note_journal_entry      | table | postgres
+ public | credit_note_payment_made       | table | postgres
+ public | currency                       | table | postgres
+ public | custom_field                   | table | postgres
+ public | customer                       | table | postgres
+ public | customer_message               | table | postgres
+ public | customers                      | table | postgres
+ public | deadlock                       | table | postgres
+ public | email_activity                 | table | postgres
+ public | email_template                 | table | postgres
+ public | exchange_rate                  | table | postgres
+ public | expense                        | table | postgres
+ public | fee                            | table | postgres
+ public | fee_condition                  | table | postgres
+ public | fee_rule                       | table | postgres
+ public | handoff_log                    | table | postgres
+ public | heading_account                | table | postgres
+ public | hotel_booking                  | table | postgres
+ public | inventory                      | table | postgres
+ public | invoice                        | table | postgres
+ public | invoice_credit_note            | table | postgres
+ public | invoice_journal_entry          | table | postgres
+ public | invoice_payment_received       | table | postgres
+ public | ir_folder_link                 | table | postgres
+ public | irs_import_filter              | table | postgres
+ public | irs_share                      | table | postgres
+ public | jailer_config                  | table | postgres
+ public | jailer_dependency              | table | postgres
+ public | jailer_entity                  | table | postgres
+ public | jailer_graph                   | table | postgres
+ public | jailer_set                     | table | postgres
+ public | jailer_tmp                     | table | postgres
+ public | journal_entry                  | table | postgres
+ public | journal_entry_payment_made     | table | postgres
+ public | journal_entry_payment_received | table | postgres
+ public | ledger                         | table | postgres
+ public | local_taxes                    | table | postgres
+ public | message                        | table | postgres
+ public | message_criteria               | table | postgres
+ public | message_traveler               | table | postgres
+ public | misc_booking                   | table | postgres
+ public | opening_balance                | table | postgres
+ public | opening_balance_entry          | table | postgres
+ public | opening_balance_entry_detail   | table | postgres
+ public | payment_made                   | table | postgres
+ public | payment_received               | table | postgres
+ public | payment_received_payment_made  | table | postgres
+ public | permission                     | table | postgres
+ public | pref_customer_transaction      | table | postgres
+ public | product                        | table | postgres
+ public | quote                          | table | postgres
+ public | reconciliation                 | table | postgres
+ public | request_car                    | table | postgres
+ public | request_flight                 | table | postgres
+ public | request_hotel                  | table | postgres
+ public | request_misc                   | table | postgres
+ public | role                           | table | postgres
+ public | role_permission                | table | postgres
+ public | segment                        | table | postgres
+ public | sender_email                   | table | postgres
+ public | sms_template                   | table | postgres
+ public | supplier                       | table | postgres
+ public | tax                            | table | postgres
+ public | tax_rule                       | table | postgres
+ public | template                       | table | postgres
+ public | template_customer              | table | postgres
+ public | terms_conditions               | table | postgres
+ public | transaction_number             | table | postgres
+ public | travel_item                    | table | postgres
+ public | travel_request                 | table | postgres
+ public | traveler                       | table | postgres
+ public | traveler_preference            | table | postgres
+ public | trip                           | table | postgres
+ public | user                           | table | postgres
