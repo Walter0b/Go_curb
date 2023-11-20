@@ -22,7 +22,7 @@ func ReplaceAllMultiple(chaine string, tabReplace map[string]string) string {
 }
 
 // CreateInvoiceImputations handles the creation of invoice imputations
-func CreateInvoiceImputations(c *gin.Context) error {
+func CreateInvoiceImputations(c *gin.Context) {
 
 	var invoice_payment_received []tableTypes.InvoicePaymentReceived
 	var invoice tableTypes.Invoice
@@ -34,49 +34,49 @@ func CreateInvoiceImputations(c *gin.Context) error {
 
 	if err := c.BindJSON(&invoice_payment_received); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to bind JSON data"})
-		return err
+		return
 	}
 
 	for i := range invoice_payment_received {
 		if err := initializers.DB.First(&invoice, invoice_payment_received[i].IDInvoice).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch invoice"})
-			return err
+			return
 		}
 
 		if err := initializers.DB.First(&payment_received, invoice_payment_received[i].IDPaymentReceived).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch payment received"})
-			return err
+			return
 		}
 
 		amountApplyFloat := invoice_payment_received[i].AmountApply
 
 		if amountApplyFloat < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid negative amount apply"})
-			return (nil)
+			return
 		}
 
 		balanceInvoiceFloat, err := strconv.ParseFloat(ReplaceAllMultiple(invoice.Balance, tabReplace), 64)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse balance of invoice"})
-			return err
+			return
 		}
 
 		creditApplyFloat, err := strconv.ParseFloat(ReplaceAllMultiple(invoice.CreditApply, tabReplace), 64)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse credit apply of invoice"})
-			return err
+			return
 		}
 
 		balancePaymentReceivedFloat, err := strconv.ParseFloat(ReplaceAllMultiple(payment_received.Balance, tabReplace), 64)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse balance of payment received"})
-			return err
+			return
 		}
 
 		usedAmountPaymentReceivedFloat, err := strconv.ParseFloat(ReplaceAllMultiple(payment_received.UsedAmount, tabReplace), 64)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse used amount of payment received"})
-			return err
+			return
 		}
 
 		usedAmountPaymentReceivedFloat += amountApplyFloat
@@ -84,7 +84,7 @@ func CreateInvoiceImputations(c *gin.Context) error {
 
 		if balanceInvoiceFloat < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Amount apply exceeds the balance of the invoice"})
-			return err
+			return
 		}
 
 		creditApplyFloat += amountApplyFloat
@@ -106,22 +106,22 @@ func CreateInvoiceImputations(c *gin.Context) error {
 
 		if err := initializers.DB.Save(&payment_received).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save payment received"})
-			return err
+			return
 		}
 
 		invoice_payment_received[i].InvoiceAmount = components.ConvertStringToFloat64(invoice.Amount)
 
 		if err := initializers.DB.Create(&invoice_payment_received[i]).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create invoice payment received"})
-			return err
+			return
 		}
 
 		if err := initializers.DB.Save(&invoice).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save invoice"})
-			return err
+			return
 		}
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Invoice imputations created successfully"})
-	return nil
+	return
 }

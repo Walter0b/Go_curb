@@ -48,8 +48,8 @@ func Api(r *gin.Engine) {
 
 	r.GET("/airbooking", controllers.GetAllItems)
 
-	//-------------------- AirBooking --------------------------||
+	//-------------------- Imputation --------------------------||
 
-//	r.POST("/imputations", controllers.CreateInvoiceImputations)
+	r.POST("/imputations", controllers.CreateInvoiceImputations)
 
 }
