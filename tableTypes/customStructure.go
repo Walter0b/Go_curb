@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+
 type PaymentReceived struct {
 	ID                    int       `gorm:"column:id;primaryKey"`
 	Number                string    `gorm:"column:number;not null"`

@@ -50,4 +50,6 @@ func Api(r *gin.Engine) {
 
 	//-------------------- AirBooking --------------------------||
 
+	r.GET("/patch", controllers.Imputations)
+	
 }

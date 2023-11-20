@@ -11,7 +11,7 @@ import (
 func GenerateUniqueInvoiceNumber() string {
 	return fmt.Sprintf("INV-%d", time.Now().Unix())
 }
-func ConvertStringToFloat64(amountStr string) (float64, error) {
+func ConvertStringToFloat64(amountStr string) float64 {
 	// Remove non-numeric characters from the string
 	cleanedStr := strings.ReplaceAll(amountStr, "$", "")
 	cleanedStr = strings.ReplaceAll(cleanedStr, ",", "")
@@ -19,10 +19,10 @@ func ConvertStringToFloat64(amountStr string) (float64, error) {
 	// Parse the cleaned string to a float64
 	amountFloat, err := strconv.ParseFloat(cleanedStr, 64)
 	if err != nil {
-		return 0, err
+		return 0
 	}
 
-	return amountFloat, nil
+	return amountFloat
 }
 
 func GenerateRandomSlug() int64 {
