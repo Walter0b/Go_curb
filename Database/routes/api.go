@@ -50,6 +50,13 @@ func Api(r *gin.Engine) {
 
 	//-------------------- Imputation --------------------------||
 
+
+	r.GET("/imputations", controllers.GetAllInvoicePayments)
 	r.POST("/imputations", controllers.CreateInvoiceImputations)
 
+	//-------------------- Imputation --------------------------||
+
+	//-------------------- Transaction -------------------------||
+
+	//-------------------- Transaction -------------------------||
 }

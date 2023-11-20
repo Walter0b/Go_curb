@@ -31,3 +31,13 @@ func GenerateRandomSlug() int64 {
 	max := int64(999)
 	return rand.Int63n(max-min+1) + min
 }
+
+func ReplaceAllMultiple(chaine string, tabReplace map[string]string) string {
+	result := chaine
+
+	for old, new := range tabReplace {
+		result = strings.ReplaceAll(result, old, new)
+	}
+
+	return result
+}
