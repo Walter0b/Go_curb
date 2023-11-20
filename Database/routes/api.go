@@ -50,6 +50,6 @@ func Api(r *gin.Engine) {
 
 	//-------------------- AirBooking --------------------------||
 
-	r.GET("/patch", controllers.Imputations)
-	
+//	r.POST("/imputations", controllers.CreateInvoiceImputations)
+
 }

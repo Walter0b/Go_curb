@@ -4,15 +4,18 @@ Brief project description and its purpose.
 
 ## Table of Contents
 
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
-- [Usage](#usage)
-- [Routes](#routes)
-- [Database](#database)
-- [Contributing](#contributing)
-- [License](#license)
+- [Project Name](#project-name)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Getting Started](#getting-started)
+    - [Installation](#installation)
+  - [Folder Structure](#folder-structure)
+    - [Configuration](#configuration)
+    - [Usage](#usage)
+    - [Routes](#routes)
+    - [Database](#database)
+    - [Contributing](#contributing)
+    - [License](#license)
 
 ## Prerequisites
 
@@ -27,7 +30,7 @@ Brief project description and its purpose.
 1. Clone the repository:
    ```bash
    git clone https://github.com/Walter0b/Go_curb.git
-   cd your-project
+   cd project
    ```
    Build the project:
 

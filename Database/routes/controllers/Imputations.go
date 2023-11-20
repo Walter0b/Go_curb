@@ -22,7 +22,7 @@ func ReplaceAllMultiple(chaine string, tabReplace map[string]string) string {
 }
 
 // CreateInvoiceImputations handles the creation of invoice imputations
-func CreateInvoiceImputations(c *gin.Context, imputations []tableTypes.InvoicePaymentReceived) error {
+func CreateInvoiceImputations(c *gin.Context) error {
 
 	var invoice_payment_received []tableTypes.InvoicePaymentReceived
 	var invoice tableTypes.Invoice

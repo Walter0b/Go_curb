@@ -99,7 +99,7 @@ func DeletePayments(c *gin.Context) {
 		return
 	}
 
-	// Consider additional checks and logic here based on your requirements
+	// Consider additional checks and logic here based on requirements
 
 	// Delete the payment
 	if err := initializers.DB.Delete(&payment).Error; err != nil {
