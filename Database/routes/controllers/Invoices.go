@@ -4,7 +4,6 @@ import (
 	"Go_curb/Database/components"
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,36 +13,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // Retrieve all invoices with pagination
 func GetAllInvoices(c *gin.Context) {
 	var invoices []tableTypes.Invoice
-	embed := c.Param("embed")
-	if embed != "" {
-		// Use reflection to check if the specified association exists in the B model
-		if _, found := reflect.TypeOf(tableTypes.Invoice{}).FieldByName(embed); found {
-			// Check if the field is a slice or not
-			if err := initializers.DB.Preload(embed).Find(&invoices).Error; err != nil {
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("%s not found for the given ID", embed)})
-					return
-				}
-				// Handle other errors if necessary
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-				return
-			}
-
-			// Combine association and B information in the response
-			response := gin.H{embed: invoices}
-			c.JSON(http.StatusOK, response)
-			return
-		}
-
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid association: %s", embed)})
-		return
-	}
+	embed := c.Query("embed")
 
 	// Retrieve page and pageSize from query parameters
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -58,28 +33,64 @@ func GetAllInvoices(c *gin.Context) {
 		return
 	}
 
-	// Calculate offset based on page and pageSize
+	var totalRowCount int64 // Total count of records
+
+	// Use reflection to check if the specified association exists in the Invoice model
+	if embed != "" {
+		if _, found := reflect.TypeOf(tableTypes.Invoice{}).FieldByName(embed); found {
+			// Check if the field is a slice or not
+			// Count total records with association
+			if err := initializers.DB.Model(&tableTypes.Invoice{}).Preload(embed).Count(&totalRowCount).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+
+			offset := (page - 1) * pageSize
+
+			// Retrieve records with association
+			if err := initializers.DB.Limit(pageSize).Offset(offset).Preload(embed).Find(&invoices).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+
+			// Combine association and Invoice information in the response
+			response := gin.H{
+				embed:           invoices,                                       // Data for the current page
+				"totalRowCount": totalRowCount,                                  // Total count of records
+				"currentPage":   page,                                           // Current page
+				"pageSize":      pageSize,                                       // Page size
+				"totalPages":    (int(totalRowCount) + pageSize - 1) / pageSize, // Total pages
+			}
+
+			c.JSON(http.StatusOK, response)
+			return
+		}
+
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid association: %s", embed)})
+		return
+	}
+
+	// Count total records without association
+	if err := initializers.DB.Model(&tableTypes.Invoice{}).Count(&totalRowCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	offset := (page - 1) * pageSize
 
-	// Fetch invoices from the database
+	// Retrieve records without association
 	if err := initializers.DB.Limit(pageSize).Offset(offset).Find(&invoices).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Convert invoices to the response format
-	// var invoiceResponses []InvoiceResponse
-	// for _, invoice := range invoices {
-	// 	invoiceResponses = append(invoiceResponses, convertInvoiceToResponse(invoice))
-	// }
-
 	// Create a response object with paginated data and metadata
 	response := gin.H{
-		"data":          invoices,                                  // Data for the current page
-		"totalRowCount": len(invoices),                             // Total count of records
-		"currentPage":   page,                                      // Current page
-		"pageSize":      pageSize,                                  // Page size
-		"totalPages":    (len(invoices) + pageSize - 1) / pageSize, // Total pages
+		"data":          invoices,                                       // Data for the current page
+		"totalRowCount": totalRowCount,                                  // Total count of records
+		"currentPage":   page,                                           // Current page
+		"pageSize":      pageSize,                                       // Page size
+		"totalPages":    (int(totalRowCount) + pageSize - 1) / pageSize, // Total pages
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -195,7 +206,6 @@ func CreateInvoice(c *gin.Context) {
 		DueDate:       dueDate,
 		Amount:        requestPayload.Amount,
 		Status:        "unpaid",
-		Tag:           requestPayload.Tag,
 	}
 	newInvoice.Balance = requestPayload.Amount
 

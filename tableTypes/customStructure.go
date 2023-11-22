@@ -1,6 +1,7 @@
 package tableTypes
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -9,7 +10,7 @@ type PaymentReceived struct {
 	Number                string    `gorm:"column:number;not null"`
 	Date                  time.Time `gorm:"column:date;not null"`
 	Balance               string    `gorm:"column:balance;not null"`
-	Amount                string    `json:"amount" gorm:"type:numeric"`
+	Amount                string    `column:"amount" gorm:"type:numeric"`
 	CurrencyRate          float64   `gorm:"column:currency_rate;not null"`
 	Fop                   string    `gorm:"column:fop;not null"`
 	Reference             string    `gorm:"column:reference"`
@@ -30,23 +31,23 @@ type PaymentReceived struct {
 	TransfertType         string    `gorm:"column:transfert_type"`
 	AlreadyUsed           int       `gorm:"column:already_used;not null"`
 	ReceipiantName        string    `gorm:"column:receipiant_name"`
-	Tag                   string    `gorm:"column:tag"`
+	Tag                   string    `gorm:"column:tag;default:2"`
 }
 
 type InvoicePaymentReceived struct {
-	ID                  int64
-	Id_invoice          int64
-	Id_payment_received int64
-	Gain_loss_amount    string `gorm:"default:null"`
-	Amount_apply        string
-	Gain_loss           string `gorm:"default:gain"`
-	Withholding_tax     string `gorm:"default:null"`
-	//Payment_amount      string
-	Invoice_amount string `gorm:"default:null"`
-	Slug           int64  `gorm:"default:10028"`
-	Hidden_field   string `gorm:"default:null"`
-	Already_used   int64  `gorm:"default:0"`
-	Tag            string `json:"tag"`
+	IDInvoice         int            `column:"id_invoice"`
+	IDPaymentReceived int            `column:"id_payment_received"`
+	GainLossAmount    sql.NullString `gorm:"column:gain_loss_amount"`
+	AmountApply       string         `column:"amount_apply"`
+	GainLoss          string         `gorm:"column:gain_loss;default:gain"`
+	WithholdingTax    sql.NullString `column:"withholding_tax"`
+	PaymentAmount     string         `column:"payment_amount"`
+	InvoiceAmount     string         `column:"invoice_amount"`
+	ID                int            `column:"id"`
+	Slug              int64          `column:"slug"`
+	HiddenField       string         `column:"hidden_field"`
+	AlreadyUsed       int64          `gorm:"column:already_used;default:0"`
+	Tag               string         `gorm:"column:tag;default:2"`
 }
 
 type Customer struct {
@@ -76,8 +77,8 @@ type Customer struct {
 	Already_used      int64
 	Ab_key            string
 	Tmc_client_number string
-	Invoices          []Invoice `gorm:"foreignKey:CustomerID"`
-	Payments	[]PaymentReceived  `gorm:"foreignKey:CustomerID"`
+	Invoices          []Invoice         `gorm:"foreignKey:CustomerID"`
+	Payments          []PaymentReceived `gorm:"foreignKey:CustomerID"`
 }
 
 type Invoice struct {
@@ -103,7 +104,7 @@ type Invoice struct {
 	HiddenIdentifier string    `gorm:"column:hidden_identifier"`
 	AlreadyUsed      int       `gorm:"column:already_used;not null"`
 	IsOpeningBalance bool      `gorm:"column:is_opening_balance"`
-	Tag              string    `gorm:"column:tag"`
+	Tag              string    `gorm:"column:tag;default:2"`
 	CustomerID       int       `gorm:"column:id_customer;"`
 }
 
@@ -132,15 +133,15 @@ type Country struct {
 	AlreadyUsed  int    `gorm:"column:already_used;not null"`
 }
 type RequestPayload struct {
-	CustomerID  int    `json:"CustomerID" binding:"required"`
-	DueDate     string `json:"dueDate" binding:"required"` // Format: "2006-01-02"
-	Amount      string `json:"amount" binding:"required"`
-	Tag         string `json:"tag"` // Include the tag field in the request payload
+	CustomerID  int    `column:"CustomerID" binding:"required"`
+	DueDate     string `column:"dueDate" binding:"required"` // Format: "2006-01-02"
+	Amount      string `column:"amount" binding:"required"`
+	Tag         string `gorm:"column:tag;default:2"` // Include the tag field in the request payload
 	TravelItems []struct {
-		ID         int    `json:"id" binding:"required"`
-		TotalPrice string `json:"totalPrice" binding:"required"`
+		ID         int    `column:"id" binding:"required"`
+		TotalPrice string `column:"totalPrice" binding:"required"`
 		Status     string `gorm:"column:status;not null"`
-	} `json:"travelItems" binding:"required"`
+	} `column:"travelItems" binding:"required"`
 }
 
 func (InvoicePaymentReceived) TableName() string {

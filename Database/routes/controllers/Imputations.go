@@ -4,7 +4,6 @@ import (
 	"Go_curb/Database/components"
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -51,41 +50,40 @@ func GetAllInvoicePayments(c *gin.Context) {
 // CreateInvoiceImputations handles the creation of invoice imputations
 func CreateInvoiceImputations(c *gin.Context) {
 
-	rawBody, err := c.GetRawData()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
-		return
-	}
-	fmt.Printf("Raw request body: %s\n", rawBody)
+	// rawBody, err := c.GetRawData()
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+	// 	return
+	// }
+	// fmt.Printf("Raw request body: %s\n", rawBody)
 
 	var InvoicePaymentReceived []tableTypes.InvoicePaymentReceived
-	var invoice tableTypes.Invoice   
+	var invoice tableTypes.Invoice
 	var PaymentReceived tableTypes.PaymentReceived
 
 	// Start a database transaction
-	tx := initializers.DB.Begin()
 
 	if err := c.BindJSON(&InvoicePaymentReceived); err != nil {
-		fmt.Printf("Parsed JSON data: %+v\n", InvoicePaymentReceived)
+		// fmt.Printf("Parsed JSON data: %+v\n", InvoicePaymentReceived)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to bind JSON data", "message": err.Error()})
 		return
 	}
-	fmt.Printf("Parsed JSON data: %+v\n", InvoicePaymentReceived)
 
+	tx := initializers.DB.Begin()
 	for i := range InvoicePaymentReceived {
-		if err := tx.First(&invoice, InvoicePaymentReceived[i].Id_invoice).Error; err != nil {
 
+		if err := tx.First(&invoice, InvoicePaymentReceived[i].IDInvoice).Error; err != nil {
+			tx.Rollback()
 			c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch invoice"})
 			return
 		}
 
-		if err := tx.First(&PaymentReceived, InvoicePaymentReceived[i].Id_payment_received).Error; err != nil {
-
+		if err := tx.First(&PaymentReceived, InvoicePaymentReceived[i].IDPaymentReceived).Error; err != nil {
+			tx.Rollback()
 			c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch payment received"})
 			return
 		}
-
-		amountApplyFloat, err := components.ConvertStringToFloat64(InvoicePaymentReceived[i].Amount_apply)
+		amountApplyFloat, err := components.ConvertStringToFloat64(InvoicePaymentReceived[i].AmountApply)
 
 		if amountApplyFloat < 0 {
 			tx.Rollback()
@@ -153,7 +151,7 @@ func CreateInvoiceImputations(c *gin.Context) {
 			return
 		}
 
-		InvoicePaymentReceived[i].Invoice_amount = invoice.Amount
+		InvoicePaymentReceived[i].InvoiceAmount = invoice.Amount
 
 		if err := tx.Create(&InvoicePaymentReceived[i]).Error; err != nil {
 			tx.Rollback()
