@@ -22,8 +22,8 @@ func Api(r *gin.Engine) {
 	r.GET("/invoices", controllers.GetAllInvoices)
 	// r.GET("/invoices/customers?id=:id", controllers.GetAllInvoices)
 	r.POST("/invoices", controllers.CreateInvoice)
-	r.GET("/invoices?id=:id", controllers.GetSpecificInvoice)
-	r.GET("/invoices/customers?id=:id", controllers.GetSpecificInvoice)
+	// r.GET("/invoices", controllers.GetSpecificInvoice)
+	// r.GET("/invoices/customers?id=:id", controllers.GetSpecificInvoice)
 	// r.PUT("/customers?id=:id", controllers.UpdatedInvoice)
 	r.DELETE("/invoices?id=:id", controllers.DeleteInvoices)
 

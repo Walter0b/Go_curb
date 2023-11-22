@@ -4,18 +4,46 @@ import (
 	"Go_curb/Database/components"
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // Retrieve all invoices with pagination
 func GetAllInvoices(c *gin.Context) {
 	var invoices []tableTypes.Invoice
+	embed := c.Param("embed")
+	if embed != "" {
+		// Use reflection to check if the specified association exists in the B model
+		if _, found := reflect.TypeOf(tableTypes.Invoice{}).FieldByName(embed); found {
+			// Check if the field is a slice or not
+			if err := initializers.DB.Preload(embed).Find(&invoices).Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("%s not found for the given ID", embed)})
+					return
+				}
+				// Handle other errors if necessary
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+				return
+			}
+
+			// Combine association and B information in the response
+			response := gin.H{embed: invoices}
+			c.JSON(http.StatusOK, response)
+			return
+		}
+
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid association: %s", embed)})
+		return
+	}
 
 	// Retrieve page and pageSize from query parameters
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -163,7 +191,7 @@ func CreateInvoice(c *gin.Context) {
 	newInvoice := tableTypes.Invoice{
 		CreationDate:  time.Now(),
 		InvoiceNumber: components.GenerateUniqueInvoiceNumber(),
-		IDCustomer:    requestPayload.IDCustomer,
+		CustomerID:    requestPayload.CustomerID,
 		DueDate:       dueDate,
 		Amount:        requestPayload.Amount,
 		Status:        "unpaid",

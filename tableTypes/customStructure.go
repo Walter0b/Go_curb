@@ -20,7 +20,7 @@ type PaymentReceived struct {
 	BaseAmount            string    `gorm:"column:base_amount;not null"`
 	IsReconciled          bool      `gorm:"column:is_reconciled;not null"`
 	Slug                  int64     `gorm:"column:slug;not null"`
-	IDCustomer            int       `gorm:"column:id_customer"`
+	CustomerID            int       `gorm:"column:id_customer"`
 	IDChartOfAccountsFrom int64     `gorm:"column:id_chart_of_accounts_from"`
 	Type                  string    `gorm:"column:type;not null"`
 	IDConsultant          int       `gorm:"column:id_consultant"`
@@ -43,7 +43,7 @@ type InvoicePaymentReceived struct {
 	Withholding_tax     string `gorm:"default:null"`
 	//Payment_amount      string
 	Invoice_amount string `gorm:"default:null"`
-	Slug           int64  `gorm:"default:1100000002258885"`
+	Slug           int64  `gorm:"default:10028"`
 	Hidden_field   string `gorm:"default:null"`
 	Already_used   int64  `gorm:"default:0"`
 	Tag            string `json:"tag"`
@@ -76,8 +76,37 @@ type Customer struct {
 	Already_used      int64
 	Ab_key            string
 	Tmc_client_number string
-	Invoice           Invoice `gorm:"foreignKey:IDCustomer"`
+	Invoices          []Invoice `gorm:"foreignKey:CustomerID"`
 }
+
+type Invoice struct {
+	ID               uint       `gorm:"column:id;primaryKey"`
+	CreationDate     time.Time  `gorm:"column:creation_date;not null"`
+	InvoiceNumber    string     `gorm:"column:invoice_number;not null"`
+	Status           string     `gorm:"column:status;not null"`
+	DueDate          time.Time  `gorm:"column:due_date"`
+	Amount           string     `gorm:"amount" gorm:"column:amount"`
+	Balance          string     `gorm:"column:balance"`
+	NetAmount        string     `gorm:"column:net_amount;not null"`
+	TaxAmount        string     `gorm:"column:tax_amount"`
+	BaseAmount       string     `gorm:"column:base_amount;not null"`
+	PurchaseOrder    string     `gorm:"column:purchase_order"`
+	CustomerNotes    string     `gorm:"column:customer_notes"`
+	Terms            int        `gorm:"column:terms"`
+	TermsConditions  string     `gorm:"column:terms_conditions"`
+	CreditApply      string     `gorm:"column:credit_apply"`
+	CreditUsed       string     `gorm:"column:credit_used"`
+	Email            string     `gorm:"column:email"`
+	PrintedName      string     `gorm:"column:printed_name"`
+	HiddenField      string     `gorm:"column:hidden_field"`
+	HiddenIdentifier string     `gorm:"column:hidden_identifier"`
+	AlreadyUsed      int        `gorm:"column:already_used;not null"`
+	IsOpeningBalance bool       `gorm:"column:is_opening_balance"`
+	Tag              string     `gorm:"column:tag"`
+	CustomerID       int        `gorm:"column:id_customer;"`
+	Customers        Customer `gorm:"foreignKey:CustomerID"`
+}
+
 type AirBooking struct {
 	ID                uint   `gorm:"column:id;primaryKey"`
 	TotalPrice        string `gorm:"column:total_price"`
@@ -103,7 +132,7 @@ type Country struct {
 	AlreadyUsed  int    `gorm:"column:already_used;not null"`
 }
 type RequestPayload struct {
-	IDCustomer  int    `json:"idCustomer" binding:"required"`
+	CustomerID  int    `json:"CustomerID" binding:"required"`
 	DueDate     string `json:"dueDate" binding:"required"` // Format: "2006-01-02"
 	Amount      string `json:"amount" binding:"required"`
 	Tag         string `json:"tag"` // Include the tag field in the request payload
@@ -112,33 +141,6 @@ type RequestPayload struct {
 		TotalPrice string `json:"totalPrice" binding:"required"`
 		Status     string `gorm:"column:status;not null"`
 	} `json:"travelItems" binding:"required"`
-}
-
-type Invoice struct {
-	ID               uint      `gorm:"column:id;primaryKey"`
-	CreationDate     time.Time `gorm:"column:creation_date;not null"`
-	InvoiceNumber    string    `gorm:"column:invoice_number;not null"`
-	Status           string    `gorm:"column:status;not null"`
-	DueDate          time.Time `gorm:"column:due_date"`
-	Amount           string    `gorm:"amount" gorm:"column:amount"`
-	Balance          string    `gorm:"column:balance"`
-	NetAmount        string    `gorm:"column:net_amount;not null"`
-	TaxAmount        string    `gorm:"column:tax_amount"`
-	BaseAmount       string    `gorm:"column:base_amount;not null"`
-	PurchaseOrder    string    `gorm:"column:purchase_order"`
-	CustomerNotes    string    `gorm:"column:customer_notes"`
-	Terms            int       `gorm:"column:terms"`
-	TermsConditions  string    `gorm:"column:terms_conditions"`
-	CreditApply      string    `gorm:"column:credit_apply"`
-	IDCustomer       int       `gorm:"column:id_customer;not null"`
-	CreditUsed       string    `gorm:"column:credit_used"`
-	Email            string    `gorm:"column:email"`
-	PrintedName      string    `gorm:"column:printed_name"`
-	HiddenField      string    `gorm:"column:hidden_field"`
-	HiddenIdentifier string    `gorm:"column:hidden_identifier"`
-	AlreadyUsed      int       `gorm:"column:already_used;not null"`
-	IsOpeningBalance bool      `gorm:"column:is_opening_balance"`
-	Tag              string    `gorm:"column:tag"`
 }
 
 func (InvoicePaymentReceived) TableName() string {

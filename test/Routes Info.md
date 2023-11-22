@@ -120,7 +120,7 @@ Response (1.1 & 1.2)
 		{
 		  "id":0,
 		  "invoice_number": "INV-001". //string (generated from backend)
-		  "idCustomer":0, //integer
+		  "CustomerID":0, //integer
 		  "creationDate":"2022-09-09", // date in this format
 		  "dueDate":"2022-10-19" //date in this format,
 		  "amount":10000.00 //float. ---> SUM of total price of all travel_item linked to invoice
@@ -198,7 +198,7 @@ response (1.3 & 1.4)
   Payload
 
   	{
-  	  "idCustomer":0, //integer
+  	  "CustomerID":0, //integer
   	  "dueDate":"2022-10-19" //date in this format,
   	  "amount":10000.00 //float. ---> SUM of total price of all travel_item linked to invoice
   	  "travelItems":[
@@ -216,7 +216,7 @@ response (1.3 & 1.4)
 
 - PATCH /invoices/id
 
-  - updatable fields : travelItems, dueDate, idCustomer
+  - updatable fields : travelItems, dueDate, CustomerID
     - Backend Validation on updatable fields
 
   ````JSON
@@ -224,7 +224,7 @@ response (1.3 & 1.4)
 
   	{
   	  "id":1
-  	  "idCustomer":0, //integer
+  	  "CustomerID":0, //integer
   	  "dueDate":"2022-10-19" //date in this format,
   	  "travelItems":[
   		  {
@@ -257,7 +257,7 @@ response (1.1 & 1.2):
 		  "paymentNumber":"PER-001", //string (generated from backend)
 		  "paymentDate":"2022-10-19", //date in this format,
 		  "paymentMode": "cash", //string, --> enum values(cash,check,bank_tranfer)
-		  "idCustomer":0,
+		  "CustomerID":0,
 		  "amount":0.00, //float
 		  "balance":0.00, //float
 		  "usedAmount": 0.00, //float
@@ -320,7 +320,7 @@ response (1.5 & 1.6 & 1.7):
 
 {
   "data" : {
-         "idCustomer": 0,
+         "CustomerID": 0,
          "payments": [
 	         {
 			  "id":1
@@ -346,20 +346,20 @@ response (1.5 & 1.6 & 1.7):
   payload
 
   	{
-  		"IdCustomer":"", //string
+  		"CustomerID":"", //string
   		"amount": 0.00, // float
   		"paymentMode" : "cash"  // string --> enum values(cash,check,bank_tranfer)
   	}
   ```
 
 - PATCH /payments/id
-  - Updatable fields : idCustomer, amount, paymentMode. Backend Validation of these fields.
+  - Updatable fields : CustomerID, amount, paymentMode. Backend Validation of these fields.
 
 ```JSON
 	payload
 
 		{
-			"IdCustomer":"", //string
+			"CustomerID":"", //string
 			"amount": 0.00, // float
 			"paymentMode" : "cash"  // string --> enum values(cash,check,bank_tranfer)
 		}
