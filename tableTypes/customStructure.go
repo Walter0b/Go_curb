@@ -1,11 +1,8 @@
 package tableTypes
 
 import (
-	// "strconv"
-	"database/sql"
 	"time"
 )
-
 
 type PaymentReceived struct {
 	ID                    int       `gorm:"column:id;primaryKey"`
@@ -37,19 +34,19 @@ type PaymentReceived struct {
 }
 
 type InvoicePaymentReceived struct {
-	IDInvoice         int             `json:"id_invoice"`
-	IDPaymentReceived int             `json:"id_payment_received"`
-	GainLossAmount    sql.NullFloat64 `json:"gain_loss_amount"`
-	AmountApply       float64         `json:"amount_apply"`
-	GainLoss          string          `json:"gain_loss"`
-	WithholdingTax    sql.NullFloat64 `json:"withholding_tax"`
-	PaymentAmount     float64         `json:"payment_amount"`
-	InvoiceAmount     float64         `json:"invoice_amount"`
-	ID                int             `json:"id"`
-	Slug              int64           `json:"slug"`
-	HiddenField       string          `json:"hidden_field"`
-	AlreadyUsed       int             `json:"already_used"`
-	Tag               string          `json:"tag"`
+	ID                  int64
+	Id_invoice          int64
+	Id_payment_received int64
+	Gain_loss_amount    string `gorm:"default:null"`
+	Amount_apply        string
+	Gain_loss           string `gorm:"default:gain"`
+	Withholding_tax     string `gorm:"default:null"`
+	//Payment_amount      string
+	Invoice_amount string `gorm:"default:null"`
+	Slug           int64  `gorm:"default:1100000002258885"`
+	Hidden_field   string `gorm:"default:null"`
+	Already_used   int64  `gorm:"default:0"`
+	Tag            string `json:"tag"`
 }
 
 type Customer struct {
@@ -79,6 +76,7 @@ type Customer struct {
 	Already_used      int64
 	Ab_key            string
 	Tmc_client_number string
+	Invoice           Invoice `gorm:"foreignKey:IDCustomer"`
 }
 type AirBooking struct {
 	ID                uint   `gorm:"column:id;primaryKey"`

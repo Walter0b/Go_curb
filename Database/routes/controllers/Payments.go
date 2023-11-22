@@ -12,8 +12,25 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func GetAllPayments(c *gin.Context) {
+func GetPayments(c *gin.Context) {
+	// GET /payments/:id - Retrieve a specific customer by ID
+	id := c.Query("id")
 	var payments []tableTypes.PaymentReceived
+
+	if id != "" {
+		if err := initializers.DB.Where("id = ?", id).Find(&payments).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Error finding payments"})
+			return
+		}
+
+		if len(payments) == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Payments not found"})
+			return
+		}
+
+		c.JSON(http.StatusOK, payments)
+		return
+	}
 
 	// Retrieve page and pageSize from query parameters
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -80,11 +97,9 @@ func CreatePayments(c *gin.Context) {
 	c.JSON(http.StatusCreated, paymentReceived)
 }
 
-// PUT /payments/:id
-
 // DELETE /payments/:id
 func DeletePayments(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Query("id")
 
 	// Retrieve the payment
 	var payment tableTypes.PaymentReceived
@@ -108,15 +123,4 @@ func DeletePayments(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Payment deleted successfully"})
-}
-
-// GET /payments/:id - Retrieve a specific customer by ID
-func GetSpecifiPayments(c *gin.Context) {
-	id := c.Param("id")
-	customerID := tableTypes.Customer{}
-	if err := initializers.DB.First(&customerID, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Customer not found"})
-		return
-	}
-	c.JSON(http.StatusOK, customerID)
 }

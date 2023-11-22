@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -58,7 +59,7 @@ func GetAllInvoices(c *gin.Context) {
 
 // Get Invoice by ID Handler
 func GetSpecificInvoicesHandler(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Query("id")
 	var invoices []tableTypes.Invoice
 
 	// Retrieve page and pageSize from query parameters
@@ -96,13 +97,32 @@ func GetSpecificInvoicesHandler(c *gin.Context) {
 }
 
 func GetSpecificInvoice(c *gin.Context) {
-	id := c.Param("id")
-	invoice := tableTypes.Invoice{}
-	if err := initializers.DB.First(&invoice, id).Error; err != nil {
+	idParam := c.Query("id")
+	invoices := tableTypes.Invoice{}
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	// Check if the route pattern includes "/customers/"
+	if strings.Contains(c.FullPath(), "/customers/") {
+
+		if err := initializers.DB.Where("id = ?", id).Preload("Customer").Find(&invoices).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Invoices not found for the given ID"})
+			return
+		}
+
+		// Combine invoices and customer information in the response
+		response := gin.H{"invoices": invoices}
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	if err := initializers.DB.First(&invoices, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Customer not found"})
 		return
 	}
-	c.JSON(http.StatusOK, invoice)
+	c.JSON(http.StatusOK, invoices)
 }
 
 func CreateInvoice(c *gin.Context) {
@@ -189,7 +209,7 @@ func CreateInvoice(c *gin.Context) {
 }
 
 // r.PUT("/invoices/:id", func(c *gin.Context) {
-// 	id := c.Param("id")
+// 	id := c.Query("id")
 
 // 	var updatedInvoice tableTypes.Invoice
 // 	if err := c.ShouldBindJSON(&updatedInvoice); err != nil {
@@ -230,7 +250,7 @@ func CreateInvoice(c *gin.Context) {
 // })
 
 func DeleteInvoices(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Query("id")
 
 	// Convert string id to uint
 	invoiceID, err := strconv.ParseUint(id, 10, 64)

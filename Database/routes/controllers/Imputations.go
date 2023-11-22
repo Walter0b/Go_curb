@@ -4,6 +4,7 @@ import (
 	"Go_curb/Database/components"
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -49,37 +50,42 @@ func GetAllInvoicePayments(c *gin.Context) {
 
 // CreateInvoiceImputations handles the creation of invoice imputations
 func CreateInvoiceImputations(c *gin.Context) {
-	var invoice_payment_received []tableTypes.InvoicePaymentReceived
-	var invoice tableTypes.Invoice
-	var payment_received tableTypes.PaymentReceived
-	tabReplace := map[string]string{
-		"$": "",
-		",": "",
+
+	rawBody, err := c.GetRawData()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+		return
 	}
+	fmt.Printf("Raw request body: %s\n", rawBody)
+
+	var InvoicePaymentReceived []tableTypes.InvoicePaymentReceived
+	var invoice tableTypes.Invoice   
+	var PaymentReceived tableTypes.PaymentReceived
 
 	// Start a database transaction
 	tx := initializers.DB.Begin()
 
-	if err := c.BindJSON(&invoice_payment_received); err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to bind JSON data"})
+	if err := c.BindJSON(&InvoicePaymentReceived); err != nil {
+		fmt.Printf("Parsed JSON data: %+v\n", InvoicePaymentReceived)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to bind JSON data", "message": err.Error()})
 		return
 	}
+	fmt.Printf("Parsed JSON data: %+v\n", InvoicePaymentReceived)
 
-	for i := range invoice_payment_received {
-		if err := tx.First(&invoice, invoice_payment_received[i].IDInvoice).Error; err != nil {
-			tx.Rollback()
+	for i := range InvoicePaymentReceived {
+		if err := tx.First(&invoice, InvoicePaymentReceived[i].Id_invoice).Error; err != nil {
+
 			c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch invoice"})
 			return
 		}
 
-		if err := tx.First(&payment_received, invoice_payment_received[i].IDPaymentReceived).Error; err != nil {
-			tx.Rollback()
+		if err := tx.First(&PaymentReceived, InvoicePaymentReceived[i].Id_payment_received).Error; err != nil {
+
 			c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch payment received"})
 			return
 		}
 
-		amountApplyFloat := invoice_payment_received[i].AmountApply
+		amountApplyFloat, err := components.ConvertStringToFloat64(InvoicePaymentReceived[i].Amount_apply)
 
 		if amountApplyFloat < 0 {
 			tx.Rollback()
@@ -87,28 +93,28 @@ func CreateInvoiceImputations(c *gin.Context) {
 			return
 		}
 
-		balanceInvoiceFloat, err := strconv.ParseFloat(components.ReplaceAllMultiple(invoice.Balance, tabReplace), 64)
+		balanceInvoiceFloat, err := components.ConvertStringToFloat64(invoice.Balance)
 		if err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse balance of invoice"})
 			return
 		}
 
-		creditApplyFloat, err := strconv.ParseFloat(components.ReplaceAllMultiple(invoice.CreditApply, tabReplace), 64)
+		creditApplyFloat, err := components.ConvertStringToFloat64(invoice.CreditApply)
 		if err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse credit apply of invoice"})
 			return
 		}
 
-		balancePaymentReceivedFloat, err := strconv.ParseFloat(components.ReplaceAllMultiple(payment_received.Balance, tabReplace), 64)
+		balancePaymentReceivedFloat, err := components.ConvertStringToFloat64(PaymentReceived.Balance)
 		if err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse balance of payment received"})
 			return
 		}
 
-		usedAmountPaymentReceivedFloat, err := strconv.ParseFloat(components.ReplaceAllMultiple(payment_received.UsedAmount, tabReplace), 64)
+		usedAmountPaymentReceivedFloat, err := components.ConvertStringToFloat64(PaymentReceived.UsedAmount)
 		if err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse used amount of payment received"})
@@ -138,18 +144,18 @@ func CreateInvoiceImputations(c *gin.Context) {
 
 		invoice.Balance = balanceInvoiceStr
 		invoice.CreditApply = creditApplyStr
-		payment_received.Balance = balancePaymentReceivedStr
-		payment_received.UsedAmount = usedAmountPaymentReceivedStr
+		PaymentReceived.Balance = balancePaymentReceivedStr
+		PaymentReceived.UsedAmount = usedAmountPaymentReceivedStr
 
-		if err := tx.Save(&payment_received).Error; err != nil {
+		if err := tx.Save(&PaymentReceived).Error; err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save payment received"})
 			return
 		}
 
-		invoice_payment_received[i].InvoiceAmount = components.ConvertStringToFloat64(invoice.Amount)
+		InvoicePaymentReceived[i].Invoice_amount = invoice.Amount
 
-		if err := tx.Create(&invoice_payment_received[i]).Error; err != nil {
+		if err := tx.Create(&InvoicePaymentReceived[i]).Error; err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create invoice payment received"})
 			return
