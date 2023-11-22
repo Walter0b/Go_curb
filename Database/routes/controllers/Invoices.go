@@ -86,7 +86,7 @@ func GetAllInvoices(c *gin.Context) {
 }
 
 // Get Invoice by ID Handler
-func GetSpecificInvoicesHandler(c *gin.Context) {
+func GetSpecificInvoices(c *gin.Context) {
 	id := c.Query("id")
 	var invoices []tableTypes.Invoice
 

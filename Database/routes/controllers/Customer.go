@@ -83,17 +83,16 @@ func GetAllCustomer(c *gin.Context) {
 //	}
 func GetSpecificCustomer(c *gin.Context) {
 	id := c.Query("id")
-	embed := c.Param("embed")
+	embed := c.Query("embed")
 	customer := tableTypes.Customer{}
 
-	// Check if the route pattern includes "/customers/"
 	if embed != "" {
 		// Use reflection to check if the specified association exists in Customer model
 		if field, found := reflect.TypeOf(tableTypes.Customer{}).FieldByName(embed); found {
 			// Check if the field is a slice (assumes it's an association)
 			if field.Type.Kind() == reflect.Slice {
-				if err := initializers.DB.Preload(embed).Find(&customer,id).Error; err != nil {
-					c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("%s not found for the given ID", embed)})
+				if err := initializers.DB.Preload(embed).Find(&customer, id).Error; err != nil {
+					c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("%s not found for the given ID: %v", embed, err)})
 					return
 				}
 
@@ -106,10 +105,12 @@ func GetSpecificCustomer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid association: %s", embed)})
 		return
 	}
+
 	if err := initializers.DB.First(&customer, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Invoice not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("Customer not found for the given ID: %v", err)})
 		return
 	}
+
 	c.JSON(http.StatusOK, customer)
 }
 

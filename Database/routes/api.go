@@ -11,7 +11,7 @@ func Api(r *gin.Engine) {
 
 	r.POST("/customers", controllers.CreateCustomer)
 	r.GET("/customers", controllers.GetAllCustomer)
-	// r.GET("/customers?id=:id", controllers.GetSpecificCustomer)
+	 r.GET("/customer", controllers.GetSpecificCustomer)
 	r.PUT("/customers/", controllers.UpdateCustomer)
 	r.DELETE("/customers?id=:id", controllers.DeleteCutomer)
 
