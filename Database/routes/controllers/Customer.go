@@ -12,28 +12,10 @@ import (
 )
 
 // Retrieve all customers with pagination
+
 func GetAllCustomer(c *gin.Context) {
 	var customers []tableTypes.Customer
 	embed := c.Query("embed")
-	if embed != "" {
-		// Use reflection to check if the specified association exists in Customer model
-		if field, found := reflect.TypeOf(tableTypes.Customer{}).FieldByName(embed); found {
-			// Check if the field is a slice (assumes it's an association)
-			if field.Type.Kind() == reflect.Slice {
-				if err := initializers.DB.Preload(embed).Find(&customers).Error; err != nil {
-					c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("%s not found for the given ID", embed)})
-					return
-				}
-
-				// Combine association and customer information in the response
-				response := gin.H{embed: customers}
-				c.JSON(http.StatusOK, response)
-				return
-			}
-		}
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid association: %s", embed)})
-		return
-	}
 
 	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
 	if err != nil {
@@ -49,7 +31,39 @@ func GetAllCustomer(c *gin.Context) {
 
 	var totalRowCount int64 // Total count of records
 
-	// Count total records
+	// Use reflection to check if the specified association exists in Customer model
+	if embed != "" {
+		if field, found := reflect.TypeOf(tableTypes.Customer{}).FieldByName(embed); found {
+			// Check if the field is a slice (assumes it's an association)
+			if field.Type.Kind() == reflect.Slice {
+				// Count total records with association
+				if err := initializers.DB.Model(&tableTypes.Customer{}).Preload(embed).Count(&totalRowCount).Error; err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+					return
+				}
+
+				offset := (page - 1) * pageSize
+
+				// Retrieve records with association
+				if err := initializers.DB.Limit(pageSize).Offset(offset).Preload(embed).Find(&customers).Error; err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+					return
+				}
+
+				response := gin.H{
+					"data":          customers,     // Data for the current page
+					"totalRowCount": totalRowCount, // Total count of records
+				}
+
+				c.JSON(http.StatusOK, response)
+				return
+			}
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid association: %s", embed)})
+		return
+	}
+
+	// Count total records without association
 	if err := initializers.DB.Model(&tableTypes.Customer{}).Count(&totalRowCount).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -57,6 +71,7 @@ func GetAllCustomer(c *gin.Context) {
 
 	offset := (page - 1) * pageSize
 
+	// Retrieve records without association
 	if err := initializers.DB.Limit(pageSize).Offset(offset).Find(&customers).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

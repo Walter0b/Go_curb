@@ -77,6 +77,7 @@ type Customer struct {
 	Ab_key            string
 	Tmc_client_number string
 	Invoices          []Invoice `gorm:"foreignKey:CustomerID"`
+	Payments	[]PaymentReceived  `gorm:"foreignKey:CustomerID"`
 }
 
 type Invoice struct {
