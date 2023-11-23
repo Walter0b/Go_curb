@@ -37,10 +37,11 @@ func GetAllInvoices(c *gin.Context) {
 
 	// Use reflection to check if the specified association exists in the Invoice model
 	if embed != "" {
-		if _, found := reflect.TypeOf(tableTypes.Invoice{}).FieldByName(embed); found {
+		var InvoiceCustomer []tableTypes.InvoiceCustomer
+		if _, found := reflect.TypeOf(tableTypes.InvoiceCustomer{}).FieldByName(embed); found {
 			// Check if the field is a slice or not
 			// Count total records with association
-			if err := initializers.DB.Model(&tableTypes.Invoice{}).Where("tag = '2'").Preload(embed).Count(&totalRowCount).Error; err != nil {
+			if err := initializers.DB.Model(&tableTypes.InvoiceCustomer{}).Where("tag = '2'").Preload(embed).Count(&totalRowCount).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
@@ -48,14 +49,14 @@ func GetAllInvoices(c *gin.Context) {
 			offset := (page - 1) * pageSize
 
 			// Retrieve records with association
-			if err := initializers.DB.Where("tag = '2'").Limit(pageSize).Offset(offset).Preload(embed).Find(&invoices).Error; err != nil {
+			if err := initializers.DB.Where("tag = '2'").Limit(pageSize).Offset(offset).Preload(embed).Find(&InvoiceCustomer).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
 
 			// Combine association and Invoice information in the response
 			response := gin.H{
-				embed:           invoices,                                       // Data for the current page
+				embed:           InvoiceCustomer,                                       // Data for the current page
 				"totalRowCount": totalRowCount,                                  // Total count of records
 				"currentPage":   page,                                           // Current page
 				"pageSize":      pageSize,                                       // Page size

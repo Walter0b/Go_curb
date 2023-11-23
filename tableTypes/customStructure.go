@@ -106,6 +106,11 @@ type Invoice struct {
 	IsOpeningBalance bool      `gorm:"column:is_opening_balance"`
 	Tag              string    `gorm:"column:tag;default:2"`
 	CustomerID       int       `gorm:"column:id_customer;"`
+	// Customer         Customer  `gorm:"primaryKey:CustomerID"`
+
+}
+type InvoiceCustomer struct {
+	Invoice
 	Customer         Customer  `gorm:"primaryKey:CustomerID"`
 }
 
