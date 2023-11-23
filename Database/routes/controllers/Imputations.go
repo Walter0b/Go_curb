@@ -50,18 +50,10 @@ func GetAllInvoicePayments(c *gin.Context) {
 // CreateInvoiceImputations handles the creation of invoice imputations
 func CreateInvoiceImputations(c *gin.Context) {
 
-	// rawBody, err := c.GetRawData()
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
-	// 	return
-	// }
-	// fmt.Printf("Raw request body: %s\n", rawBody)
-
 	var InvoicePaymentReceived []tableTypes.InvoicePaymentReceived
-	var invoice tableTypes.Invoice
-	var PaymentReceived tableTypes.PaymentReceived
 
 	// Start a database transaction
+	tx := initializers.DB.Begin()
 
 	if err := c.BindJSON(&InvoicePaymentReceived); err != nil {
 		// fmt.Printf("Parsed JSON data: %+v\n", InvoicePaymentReceived)
@@ -69,20 +61,24 @@ func CreateInvoiceImputations(c *gin.Context) {
 		return
 	}
 
-	tx := initializers.DB.Begin()
 	for i := range InvoicePaymentReceived {
 
-		if err := tx.First(&invoice, InvoicePaymentReceived[i].IDInvoice).Error; err != nil {
+		tx := initializers.DB.Begin()
+		var invoice tableTypes.Invoice
+		if err := tx.Where("id = ?", InvoicePaymentReceived[i].IDInvoice).First(&invoice).Error; err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch invoice"})
 			return
 		}
 
-		if err := tx.First(&PaymentReceived, InvoicePaymentReceived[i].IDPaymentReceived).Error; err != nil {
+		// Fetch the payment received by primary key
+		var PaymentReceived tableTypes.PaymentReceived
+		if err := tx.Where("id = ?", InvoicePaymentReceived[i].IDPaymentReceived).First(&PaymentReceived).Error; err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch payment received"})
 			return
 		}
+
 		amountApplyFloat, err := components.ConvertStringToFloat64(InvoicePaymentReceived[i].AmountApply)
 
 		if amountApplyFloat < 0 {
@@ -164,6 +160,10 @@ func CreateInvoiceImputations(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save invoice"})
 			return
 		}
+		tx.Commit()
+
+		// Start a new transaction for the next iteration
+		tx = initializers.DB.Begin()
 	}
 
 	// Commit the transaction if all operations were successful

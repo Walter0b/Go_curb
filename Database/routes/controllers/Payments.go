@@ -18,7 +18,7 @@ func GetPayments(c *gin.Context) {
 	var payments []tableTypes.PaymentReceived
 
 	if id != "" {
-		if err := initializers.DB.Where("id = ?", id).Find(&payments).Error; err != nil {
+		if err := initializers.DB.Where("id = ?", id).Where("tag = '2'").Find(&payments).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Error finding payments"})
 			return
 		}
@@ -49,7 +49,7 @@ func GetPayments(c *gin.Context) {
 	offset := (page - 1) * pageSize
 
 	// Fetch invoices from the database
-	if err := initializers.DB.Limit(pageSize).Offset(offset).Find(&payments).Error; err != nil {
+	if err := initializers.DB.Where("tag = '2'").Limit(pageSize).Offset(offset).Find(&payments).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -78,7 +78,6 @@ func CreatePayments(c *gin.Context) {
 	paymentReceived.Date = time.Now()
 	paymentReceived.Status = "open"
 	paymentReceived.Balance = paymentReceived.Amount
-	paymentReceived.Tag = "2"
 	paymentReceived.Slug = components.GenerateRandomSlug()
 	// Validate and save to the database
 	if err := initializers.DB.Clauses(clause.OnConflict{

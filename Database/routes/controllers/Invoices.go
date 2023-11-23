@@ -40,7 +40,7 @@ func GetAllInvoices(c *gin.Context) {
 		if _, found := reflect.TypeOf(tableTypes.Invoice{}).FieldByName(embed); found {
 			// Check if the field is a slice or not
 			// Count total records with association
-			if err := initializers.DB.Model(&tableTypes.Invoice{}).Preload(embed).Count(&totalRowCount).Error; err != nil {
+			if err := initializers.DB.Model(&tableTypes.Invoice{}).Where("tag = '2'").Preload(embed).Count(&totalRowCount).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
@@ -48,7 +48,7 @@ func GetAllInvoices(c *gin.Context) {
 			offset := (page - 1) * pageSize
 
 			// Retrieve records with association
-			if err := initializers.DB.Limit(pageSize).Offset(offset).Preload(embed).Find(&invoices).Error; err != nil {
+			if err := initializers.DB.Where("tag = '2'").Limit(pageSize).Offset(offset).Preload(embed).Find(&invoices).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
@@ -79,7 +79,7 @@ func GetAllInvoices(c *gin.Context) {
 	offset := (page - 1) * pageSize
 
 	// Retrieve records without association
-	if err := initializers.DB.Limit(pageSize).Offset(offset).Find(&invoices).Error; err != nil {
+	if err := initializers.DB.Where("tag = '2'").Limit(pageSize).Offset(offset).Find(&invoices).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -118,7 +118,7 @@ func GetSpecificInvoices(c *gin.Context) {
 	offset := (page - 1) * pageSize
 
 	// Fetch invoices from the database
-	db := initializers.DB.Where(map[string]interface{}{"id_customer": id, "balance": "0"}).Limit(pageSize).Offset(offset)
+	db := initializers.DB.Where(map[string]interface{}{"id_customer": id, "balance": "0"}).Where("tag = '2'").Limit(pageSize).Offset(offset)
 	if err := db.Find(&invoices).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
