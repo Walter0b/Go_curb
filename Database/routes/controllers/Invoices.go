@@ -56,7 +56,7 @@ func GetAllInvoices(c *gin.Context) {
 
 			// Combine association and Invoice information in the response
 			response := gin.H{
-				embed:           InvoiceCustomer,                                       // Data for the current page
+				"data":           InvoiceCustomer,                                       // Data for the current page
 				"totalRowCount": totalRowCount,                                  // Total count of records
 				"currentPage":   page,                                           // Current page
 				"pageSize":      pageSize,                                       // Page size

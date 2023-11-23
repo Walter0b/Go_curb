@@ -22,13 +22,13 @@ type PaymentReceived struct {
 	IsReconciled          bool      `gorm:"column:is_reconciled;not null"`
 	Slug                  int64     `gorm:"column:slug;not null"`
 	CustomerID            int       `gorm:"column:id_customer"`
-	IDChartOfAccountsFrom int64     `gorm:"column:id_chart_of_accounts_from"`
-	Type                  string    `gorm:"column:type;not null"`
-	IDConsultant          int       `gorm:"column:id_consultant"`
-	IDChartOfAccounts     int       `gorm:"column:id_chart_of_accounts;not null"`
-	IDCurrency            int       `gorm:"column:id_currency;not null"`
+	IDChartOfAccountsFrom int64     `gorm:"column:id_chart_of_accounts_from;default:94"`
+	Type                  string    `gorm:"column:type;default:customer_payment"`
+	IDConsultant          int       `gorm:"column:id_consultantdefault:6"`
+	IDChartOfAccounts     int       `gorm:"column:id_chart_of_accounts;default:33"`
+	IDCurrency            int       `gorm:"column:id_currency;default:550"`
 	HiddenField           string    `gorm:"column:hidden_field"`
-	TransfertType         string    `gorm:"column:transfert_type"`
+	TransfertType         string    `gorm:"column:transfert_type;default:sales_without_invoices"`
 	AlreadyUsed           int       `gorm:"column:already_used;not null"`
 	ReceipiantName        string    `gorm:"column:receipiant_name"`
 	Tag                   string    `gorm:"column:tag;default:2"`
@@ -77,10 +77,13 @@ type Customer struct {
 	Already_used      int64
 	Ab_key            string
 	Tmc_client_number string
-	Invoices          []Invoice         `gorm:"foreignKey:CustomerID"`
-	Payments          []PaymentReceived `gorm:"foreignKey:CustomerID"`
 }
 
+type CustomerEmbed struct {
+	Customer
+	Invoices []Invoice `gorm:"foreignKey:CustomerID"`
+	Payments []PaymentReceived `gorm:"foreignKey:CustomerID"`
+}
 type Invoice struct {
 	ID               uint      `gorm:"column:id;primaryKey"`
 	CreationDate     time.Time `gorm:"column:creation_date;not null"`
@@ -111,7 +114,7 @@ type Invoice struct {
 }
 type InvoiceCustomer struct {
 	Invoice
-	Customer         Customer  `gorm:"primaryKey:CustomerID"`
+	Customer Customer `gorm:"primaryKey:CustomerID"`
 }
 
 type AirBooking struct {

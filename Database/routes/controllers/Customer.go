@@ -33,11 +33,12 @@ func GetAllCustomer(c *gin.Context) {
 
 	// Use reflection to check if the specified association exists in Customer model
 	if embed != "" {
-		if field, found := reflect.TypeOf(tableTypes.Customer{}).FieldByName(embed); found {
+		var CustomerEmbed []tableTypes.CustomerEmbed
+		if field, found := reflect.TypeOf(tableTypes.CustomerEmbed{}).FieldByName(embed); found {
 			// Check if the field is a slice (assumes it's an association)
 			if field.Type.Kind() == reflect.Slice {
 				// Count total records with association
-				if err := initializers.DB.Model(&tableTypes.Customer{}).Preload(embed).Count(&totalRowCount).Error; err != nil {
+				if err := initializers.DB.Model(&tableTypes.CustomerEmbed{}).Preload(embed).Count(&totalRowCount).Error; err != nil {
 					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 					return
 				}
@@ -45,13 +46,13 @@ func GetAllCustomer(c *gin.Context) {
 				offset := (page - 1) * pageSize
 
 				// Retrieve records with association
-				if err := initializers.DB.Limit(pageSize).Offset(offset).Preload(embed).Find(&customers).Error; err != nil {
+				if err := initializers.DB.Limit(pageSize).Offset(offset).Preload(embed).Find(&CustomerEmbed).Error; err != nil {
 					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 					return
 				}
 
 				response := gin.H{
-					"data":          customers,     // Data for the current page
+					"data":          CustomerEmbed,     // Data for the current page
 					"totalRowCount": totalRowCount, // Total count of records
 				}
 
@@ -112,7 +113,7 @@ func GetSpecificCustomer(c *gin.Context) {
 				}
 
 				// Combine association and customer information in the response
-				response := gin.H{embed: customer}
+				response := gin.H{"data": customer}
 				c.JSON(http.StatusOK, response)
 				return
 			}
