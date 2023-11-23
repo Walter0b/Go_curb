@@ -20,7 +20,6 @@ func Api(r *gin.Engine) {
 	//--------------------- Invoice ----------------------------||
 
 	r.GET("/invoices", controllers.GetAllInvoices)
-	// r.GET("/invoices/customers", controllers.GetAllInvoices)
 	r.POST("/invoices", controllers.CreateInvoice)
 	// r.GET("/invoices", controllers.GetSpecificInvoice)
 	// r.GET("/invoices/customers", controllers.GetSpecificInvoice)
