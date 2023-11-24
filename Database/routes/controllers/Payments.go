@@ -83,8 +83,8 @@ func CreatePayments(c *gin.Context) {
 
 	// Automatically generate a unique number with the format "PMR-{dynamic_number}"
 
-	nextNumber := components.GenerateRandomSlug() // Replace this with your logic to get the next available number
-	paymentReceived.Number = fmt.Sprintf("PMR-%d2", nextNumber)
+	nextNumber := components.GenerateRandomSlug()
+	paymentReceived.Number = fmt.Sprintf("PMR-%d-2", nextNumber)
 
 	// Validate and save to the database
 	if err := initializers.DB.Clauses(clause.OnConflict{

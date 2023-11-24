@@ -23,10 +23,16 @@ func GetAllCustomer(c *gin.Context) {
 		return
 	}
 
-	pageSize, err := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
-	if err != nil || pageSize < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
-		return
+	var pageSize int
+	if pageSizeStr := c.Query("pageSize"); pageSizeStr != "" {
+		pageSize, err = strconv.Atoi(pageSizeStr)
+		if err != nil || pageSize < 1 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
+			return
+		}
+	} else {
+		// If pageSize is not specified, set it to a large number or as needed
+		pageSize = 1000000 // Use a sufficiently large number
 	}
 
 	var totalRowCount int64 // Total count of records
@@ -52,7 +58,7 @@ func GetAllCustomer(c *gin.Context) {
 				}
 
 				response := gin.H{
-					"data":          CustomerEmbed,     // Data for the current page
+					"data":          CustomerEmbed, // Data for the current page
 					"totalRowCount": totalRowCount, // Total count of records
 				}
 
