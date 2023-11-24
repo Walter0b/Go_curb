@@ -4,6 +4,7 @@ import (
 	"Go_curb/Database/components"
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -79,6 +80,12 @@ func CreatePayments(c *gin.Context) {
 	paymentReceived.Status = "open"
 	paymentReceived.Balance = paymentReceived.Amount
 	paymentReceived.Slug = components.GenerateRandomSlug()
+
+	// Automatically generate a unique number with the format "PMR-{dynamic_number}"
+
+	nextNumber := components.GenerateRandomSlug() // Replace this with your logic to get the next available number
+	paymentReceived.Number = fmt.Sprintf("PMR-%d", nextNumber)
+
 	// Validate and save to the database
 	if err := initializers.DB.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "slug"}},
@@ -95,6 +102,7 @@ func CreatePayments(c *gin.Context) {
 	// Respond with the created payment
 	c.JSON(http.StatusCreated, paymentReceived)
 }
+
 
 // DELETE /payments/:id
 func DeletePayments(c *gin.Context) {

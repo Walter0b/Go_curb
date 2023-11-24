@@ -81,7 +81,7 @@ type Customer struct {
 
 type CustomerEmbed struct {
 	Customer
-	Invoices []Invoice         `gorm:"foreignKey:CustomerID"`
+	Invoices []Invoice `gorm:"foreignKey:CustomerID"`
 	Payments []PaymentReceived `gorm:"foreignKey:CustomerID"`
 }
 type Invoice struct {
