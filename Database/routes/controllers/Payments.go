@@ -84,7 +84,7 @@ func CreatePayments(c *gin.Context) {
 	// Automatically generate a unique number with the format "PMR-{dynamic_number}"
 
 	nextNumber := components.GenerateRandomSlug() // Replace this with your logic to get the next available number
-	paymentReceived.Number = fmt.Sprintf("PMR-%d", nextNumber)
+	paymentReceived.Number = fmt.Sprintf("PMR-%d2", nextNumber)
 
 	// Validate and save to the database
 	if err := initializers.DB.Clauses(clause.OnConflict{
@@ -95,6 +95,7 @@ func CreatePayments(c *gin.Context) {
 				"transfert_type", "already_used", "receipiant_name", "tag"},
 		),
 	}).Create(&paymentReceived).Error; err != nil {
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -102,7 +103,6 @@ func CreatePayments(c *gin.Context) {
 	// Respond with the created payment
 	c.JSON(http.StatusCreated, paymentReceived)
 }
-
 
 // DELETE /payments/:id
 func DeletePayments(c *gin.Context) {
