@@ -24,7 +24,7 @@ type PaymentReceived struct {
 	CustomerID            int       `gorm:"column:id_customer"`
 	IDChartOfAccountsFrom int64     `gorm:"column:id_chart_of_accounts_from;default:94"`
 	Type                  string    `gorm:"column:type;default:customer_payment"`
-	IDConsultant          int       `gorm:"column:id_consultantdefault:6"`
+	IDConsultant          int       `gorm:"column:id_consultant;default:6"`
 	IDChartOfAccounts     int       `gorm:"column:id_chart_of_accounts;default:33"`
 	IDCurrency            int       `gorm:"column:id_currency;default:550"`
 	HiddenField           string    `gorm:"column:hidden_field"`
@@ -81,7 +81,7 @@ type Customer struct {
 
 type CustomerEmbed struct {
 	Customer
-	Invoices []Invoice `gorm:"foreignKey:CustomerID"`
+	Invoices []Invoice         `gorm:"foreignKey:CustomerID"`
 	Payments []PaymentReceived `gorm:"foreignKey:CustomerID"`
 }
 type Invoice struct {
