@@ -1,96 +1,104 @@
 package controllers
 
 import (
+	"Go_curb/Database/components"
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
 	"fmt"
 	"net/http"
 	"reflect"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Retrieve all customers with pagination
-
 func GetAllCustomer(c *gin.Context) {
-	var customers []tableTypes.Customer
-	embed := c.Query("embed")
-
-	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
-		return
-	}
-
-	var pageSize int
-	if pageSizeStr := c.Query("pageSize"); pageSizeStr != "" {
-		pageSize, err = strconv.Atoi(pageSizeStr)
-		if err != nil || pageSize < 1 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
-			return
-		}
-	} else {
-		// If pageSize is not specified, set it to a large number or as needed
-		pageSize = 1000000 // Use a sufficiently large number
-	}
-
-	var totalRowCount int64 // Total count of records
-
-	// Use reflection to check if the specified association exists in Customer model
-	if embed != "" {
-		var CustomerEmbed []tableTypes.CustomerEmbed
-		if field, found := reflect.TypeOf(tableTypes.CustomerEmbed{}).FieldByName(embed); found {
-			// Check if the field is a slice (assumes it's an association)
-			if field.Type.Kind() == reflect.Slice {
-				// Count total records with association
-				if err := initializers.DB.Model(&tableTypes.CustomerEmbed{}).Preload(embed).Count(&totalRowCount).Error; err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-					return
-				}
-
-				offset := (page - 1) * pageSize
-
-				// Retrieve records with association
-				if err := initializers.DB.Limit(pageSize).Offset(offset).Preload(embed).Find(&CustomerEmbed).Error; err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-					return
-				}
-
-				response := gin.H{
-					"data":          CustomerEmbed, // Data for the current page
-					"totalRowCount": totalRowCount, // Total count of records
-				}
-
-				c.JSON(http.StatusOK, response)
-				return
-			}
-		}
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid association: %s", embed)})
-		return
-	}
-
-	// Count total records without association
-	if err := initializers.DB.Model(&tableTypes.Customer{}).Count(&totalRowCount).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	offset := (page - 1) * pageSize
-
-	// Retrieve records without association
-	if err := initializers.DB.Limit(pageSize).Offset(offset).Find(&customers).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	response := gin.H{
-		"data":          customers,     // Data for the current page
-		"totalRowCount": totalRowCount, // Total count of records
-	}
-
-	c.JSON(http.StatusOK, response)
+	var customer []tableTypes.Customer
+	var CustomerType []tableTypes.CustomerEmbed
+	query := initializers.DB.Model(&tableTypes.Customer{})
+	embedType := reflect.TypeOf(tableTypes.CustomerEmbed{})
+	embedField := c.Query("embed")
+	components.PaginateWithEmbed(c, query, &customer, &CustomerType, embedType, embedField)
 }
+
+// func GetAllCustomer(c *gin.Context) {
+// 	var customers []tableTypes.Customer
+// 	embed := c.Query("embed")
+
+// 	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
+// 		return
+// 	}
+
+// 	var pageSize int
+// 	if pageSizeStr := c.Query("pageSize"); pageSizeStr != "" {
+// 		pageSize, err = strconv.Atoi(pageSizeStr)
+// 		if err != nil || pageSize < 1 {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
+// 			return
+// 		}
+// 	} else {
+// 		// If pageSize is not specified, set it to a large number or as needed
+// 		pageSize = 1000000 // Use a sufficiently large number
+// 	}
+
+// 	var totalRowCount int64 // Total count of records
+
+// 	// Use reflection to check if the specified association exists in Customer model
+// 	if embed != "" {
+// 		var CustomerEmbed []tableTypes.CustomerEmbed
+// 		if field, found := reflect.TypeOf(tableTypes.CustomerEmbed{}).FieldByName(embed); found {
+// 			// Check if the field is a slice (assumes it's an association)
+// 			if field.Type.Kind() == reflect.Slice {
+// 				// Count total records with association
+// 				if err := initializers.DB.Model(&tableTypes.CustomerEmbed{}).Preload(embed).Count(&totalRowCount).Error; err != nil {
+// 					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 					return
+// 				}
+
+// 				offset := (page - 1) * pageSize
+
+// 				// Retrieve records with association
+// 				if err := initializers.DB.Limit(pageSize).Offset(offset).Preload(embed).Find(&CustomerEmbed).Error; err != nil {
+// 					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 					return
+// 				}
+
+// 				response := gin.H{
+// 					"data":          CustomerEmbed, // Data for the current page
+// 					"totalRowCount": totalRowCount, // Total count of records
+// 				}
+
+// 				c.JSON(http.StatusOK, response)
+// 				return
+// 			}
+// 		}
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid association: %s", embed)})
+// 		return
+// 	}
+
+// 	// Count total records without association
+// 	if err := initializers.DB.Model(&tableTypes.Customer{}).Count(&totalRowCount).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	offset := (page - 1) * pageSize
+
+// 	// Retrieve records without association
+// 	if err := initializers.DB.Limit(pageSize).Offset(offset).Find(&customers).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	response := gin.H{
+// 		"data":          customers,     // Data for the current page
+// 		"totalRowCount": totalRowCount, // Total count of records
+// 	}
+
+// 	c.JSON(http.StatusOK, response)
+// }
 
 // Retrieve a specific customer by ID
 //

@@ -4,7 +4,6 @@ import (
 	"Go_curb/Database/components"
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
-	"fmt"
 	"log"
 	"net/http"
 	"reflect"
@@ -18,122 +17,11 @@ import (
 // Retrieve all invoices with pagination
 func GetAllInvoices(c *gin.Context) {
 	var invoices []tableTypes.Invoice
-	embed := c.Query("embed")
-
-	// Retrieve page and pageSize from query parameters
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if err != nil || page < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
-		return
-	}
-
-	pageSize, err := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
-	if err != nil || pageSize < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
-		return
-	}
-
-	var totalRowCount int64 // Total count of records
-
-	// Use reflection to check if the specified association exists in the Invoice model
-	if embed != "" {
-		var InvoiceCustomer []tableTypes.InvoiceCustomer
-		if _, found := reflect.TypeOf(tableTypes.InvoiceCustomer{}).FieldByName(embed); found {
-			// Check if the field is a slice or not
-			// Count total records with association
-			if err := initializers.DB.Model(&tableTypes.InvoiceCustomer{}).Where("tag = '2'").Preload(embed).Count(&totalRowCount).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
-
-			offset := (page - 1) * pageSize
-
-			// Retrieve records with association
-			if err := initializers.DB.Where("tag = '2'").Limit(pageSize).Offset(offset).Preload(embed).Find(&InvoiceCustomer).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
-
-			// Combine association and Invoice information in the response
-			response := gin.H{
-				"data":           InvoiceCustomer,                                       // Data for the current page
-				"totalRowCount": totalRowCount,                                  // Total count of records
-				"currentPage":   page,                                           // Current page
-				"pageSize":      pageSize,                                       // Page size
-				"totalPages":    (int(totalRowCount) + pageSize - 1) / pageSize, // Total pages
-			}
-
-			c.JSON(http.StatusOK, response)
-			return
-		}
-
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid association: %s", embed)})
-		return
-	}
-
-	// Count total records without association
-	if err := initializers.DB.Model(&tableTypes.Invoice{}).Count(&totalRowCount).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	offset := (page - 1) * pageSize
-
-	// Retrieve records without association
-	if err := initializers.DB.Where("tag = '2'").Limit(pageSize).Offset(offset).Find(&invoices).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Create a response object with paginated data and metadata
-	response := gin.H{
-		"data":          invoices,                                       // Data for the current page
-		"totalRowCount": totalRowCount,                                  // Total count of records
-		"currentPage":   page,                                           // Current page
-		"pageSize":      pageSize,                                       // Page size
-		"totalPages":    (int(totalRowCount) + pageSize - 1) / pageSize, // Total pages
-	}
-
-	c.JSON(http.StatusOK, response)
-}
-
-// Get Invoice by ID Handler
-func GetSpecificInvoices(c *gin.Context) {
-	id := c.Query("id")
-	var invoices []tableTypes.Invoice
-
-	// Retrieve page and pageSize from query parameters
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if err != nil || page < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
-		return
-	}
-
-	pageSize, err := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
-	if err != nil || pageSize < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
-		return
-	}
-
-	// Calculate offset based on page and pageSize
-	offset := (page - 1) * pageSize
-
-	// Fetch invoices from the database
-	db := initializers.DB.Where(map[string]interface{}{"id_customer": id, "balance": "0"}).Where("tag = '2'").Limit(pageSize).Offset(offset)
-	if err := db.Find(&invoices).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	response := gin.H{
-		"data":          invoices,                                  // Data for the current page
-		"totalRowCount": len(invoices),                             // Total count of records
-		"currentPage":   page,                                      // Current page
-		"pageSize":      pageSize,                                  // Page size
-		"totalPages":    (len(invoices) + pageSize - 1) / pageSize, // Total pages
-	}
-
-	c.JSON(http.StatusOK, response)
+	var invoicesCustomerType []tableTypes.InvoiceCustomer
+	query := initializers.DB.Model(&tableTypes.Invoice{}).Where("tag = '2'")
+	embedType := reflect.TypeOf(tableTypes.InvoiceCustomer{})
+	embedField := c.Query("embed")
+	components.PaginateWithEmbed(c, query, &invoices, &invoicesCustomerType, embedType, embedField)
 }
 
 func GetSpecificInvoice(c *gin.Context) {

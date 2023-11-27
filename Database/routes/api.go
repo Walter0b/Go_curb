@@ -10,8 +10,8 @@ func Api(r *gin.Engine) {
 	//--------------------- customer  ---------------------------||
 
 	r.POST("/customers", controllers.CreateCustomer)
-	r.GET("/customers", controllers.GetAllCustomer)
-	 r.GET("/customer", controllers.GetSpecificCustomer)
+	r.GET("/customers", controllers.GetAllItems)
+	r.GET("/customer", controllers.GetSpecificCustomer)
 	r.PUT("/customers/", controllers.UpdateCustomer)
 	r.DELETE("/customers", controllers.DeleteCutomer)
 

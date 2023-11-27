@@ -6,7 +6,7 @@ import (
 	"Go_curb/tableTypes"
 	"fmt"
 	"net/http"
-	"strconv"
+	"reflect"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,57 +14,12 @@ import (
 )
 
 func GetPayments(c *gin.Context) {
-	// GET /payments/:id - Retrieve a specific customer by ID
-	id := c.Query("id")
 	var payments []tableTypes.PaymentReceived
-
-	if id != "" {
-		if err := initializers.DB.Where("id = ?", id).Where("tag = '2'").Find(&payments).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Error finding payments"})
-			return
-		}
-
-		if len(payments) == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Payments not found"})
-			return
-		}
-
-		c.JSON(http.StatusOK, payments)
-		return
-	}
-
-	// Retrieve page and pageSize from query parameters
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if err != nil || page < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
-		return
-	}
-
-	pageSize, err := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
-	if err != nil || pageSize < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
-		return
-	}
-
-	// Calculate offset based on page and pageSize
-	offset := (page - 1) * pageSize
-
-	// Fetch invoices from the database
-	if err := initializers.DB.Where("tag = '2'").Limit(pageSize).Offset(offset).Find(&payments).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Create a response object with paginated data and metadata
-	response := gin.H{
-		"data":          payments,                                  // Data for the current page
-		"totalRowCount": len(payments),                             // Total count of records
-		"currentPage":   page,                                      // Current page
-		"pageSize":      pageSize,                                  // Page size
-		"totalPages":    (len(payments) + pageSize - 1) / pageSize, // Total pages
-	}
-
-	c.JSON(http.StatusOK, response)
+	var paymentsEmbedded = ""
+	query := initializers.DB.Model(&tableTypes.PaymentReceived{}).Where("tag = '2'")
+	embedType := reflect.TypeOf(tableTypes.PaymentReceived{})
+	embedField := c.Query("embed")
+	components.PaginateWithEmbed(c, query, &payments, &paymentsEmbedded, embedType, embedField)
 }
 
 func CreatePayments(c *gin.Context) {

@@ -5,46 +5,56 @@ import (
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
 	"net/http"
+	"reflect"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
+// func GetAllInvoicePayments(c *gin.Context) {
+// 	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
+// 		return
+// 	}
+
+// 	pageSize, err := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+// 	if err != nil || pageSize < 1 {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
+// 		return
+// 	}
+
+// 	var Imputations []tableTypes.InvoicePaymentReceived
+// 	var totalRowCount int64 // Total count of records
+
+// 	// Count total records
+// 	if err := initializers.DB.Model(&tableTypes.InvoicePaymentReceived{}).Count(&totalRowCount).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	offset := (page - 1) * pageSize
+
+// 	if err := initializers.DB.Limit(pageSize).Offset(offset).Find(&Imputations).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	response := gin.H{
+// 		"data":          Imputations,   // Data for the current page
+// 		"totalRowCount": totalRowCount, // Total count of records
+// 	}
+
+// 	c.JSON(http.StatusOK, response)
+// }
+
 func GetAllInvoicePayments(c *gin.Context) {
-	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
-		return
-	}
-
-	pageSize, err := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
-	if err != nil || pageSize < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
-		return
-	}
-
-	var Imputations []tableTypes.InvoicePaymentReceived
-	var totalRowCount int64 // Total count of records
-
-	// Count total records
-	if err := initializers.DB.Model(&tableTypes.InvoicePaymentReceived{}).Count(&totalRowCount).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	offset := (page - 1) * pageSize
-
-	if err := initializers.DB.Limit(pageSize).Offset(offset).Find(&Imputations).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	response := gin.H{
-		"data":          Imputations,   // Data for the current page
-		"totalRowCount": totalRowCount, // Total count of records
-	}
-
-	c.JSON(http.StatusOK, response)
+	var invoices []tableTypes.Invoice
+	var invoicesCustomerType []tableTypes.InvoicePaymentReceived
+	query := initializers.DB.Model(&tableTypes.Invoice{}).Where("tag = '2'")
+	embedType := reflect.TypeOf(tableTypes.InvoicePaymentReceived{})
+	embedField := c.Query("embed")
+	components.PaginateWithEmbed(c, query, &invoices, &invoicesCustomerType, embedType, embedField)
 }
 
 // CreateInvoiceImputations handles the creation of invoice imputations
