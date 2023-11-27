@@ -19,7 +19,8 @@ func GetPayments(c *gin.Context) {
 	query := initializers.DB.Model(&tableTypes.PaymentReceived{}).Where("tag = '2'")
 	embedType := reflect.TypeOf(tableTypes.PaymentReceived{})
 	embedField := c.Query("embed")
-	components.PaginateWithEmbed(c, query, &payments, &paymentsEmbedded, embedType, embedField)
+	id := c.Query("id")
+	components.PaginateWithEmbed(c, query, &payments, &paymentsEmbedded, embedType, embedField,id)
 }
 
 func CreatePayments(c *gin.Context) {

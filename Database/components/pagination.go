@@ -10,7 +10,8 @@ import (
 )
 
 // PaginateWithEmbed performs pagination on a GORM query with embedding and returns the paginated result.
-func PaginateWithEmbed(c *gin.Context, query *gorm.DB, results interface{}, resultsEmbed interface{} , embedType reflect.Type, embedField string) {
+func PaginateWithEmbed(c *gin.Context, query *gorm.DB, results interface{}, resultsEmbed interface{}, embedType reflect.Type, embedField string, id string) {
+
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil || page < 1 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
@@ -45,7 +46,7 @@ func PaginateWithEmbed(c *gin.Context, query *gorm.DB, results interface{}, resu
 			// Check if the field is a slice or not
 
 			// Retrieve records with association
-			if err := query.Limit(pageSize).Offset(offset).Preload(embedField).Find(resultsEmbed).Error; err != nil {
+			if err := query.Limit(pageSize).Offset(offset).Preload(embedField).Find(resultsEmbed, id).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
@@ -53,18 +54,18 @@ func PaginateWithEmbed(c *gin.Context, query *gorm.DB, results interface{}, resu
 			// Combine association and Invoice information in the response
 			results = resultsEmbed
 		}
-	} else if err := query.Limit(pageSize).Offset(offset).Find(results).Error; err != nil {
+	} else if err := query.Limit(pageSize).Offset(offset).Find(results, id).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Create a response object with paginated data and metadata
 	response := gin.H{
-		"data":          results,                                        // Data for the current page
-		"totalRowCount": totalRowCount,                                  // Total count of records
-		"currentPage":   page,                                           // Current page
-		"pageSize":      pageSize,                                       // Page size
-		"totalPages":    (int(totalRowCount) + pageSize - 1) , // Total pages
+		"data":          results,                             // Data for the current page
+		"totalRowCount": totalRowCount,                       // Total count of records
+		"currentPage":   page,                                // Current page
+		"pageSize":      pageSize,                            // Page size
+		"totalPages":    (int(totalRowCount) + pageSize - 1), // Total pages
 	}
 
 	c.JSON(http.StatusOK, response)

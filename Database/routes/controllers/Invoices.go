@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,41 +15,14 @@ import (
 
 // Retrieve all invoices with pagination
 func GetAllInvoices(c *gin.Context) {
+
+	id := c.Query("id")
 	var invoices []tableTypes.Invoice
 	var invoicesCustomerType []tableTypes.InvoiceCustomer
 	query := initializers.DB.Model(&tableTypes.Invoice{}).Where("tag = '2'")
 	embedType := reflect.TypeOf(tableTypes.InvoiceCustomer{})
 	embedField := c.Query("embed")
-	components.PaginateWithEmbed(c, query, &invoices, &invoicesCustomerType, embedType, embedField)
-}
-
-func GetSpecificInvoice(c *gin.Context) {
-	idParam := c.Query("id")
-	invoices := tableTypes.Invoice{}
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-		return
-	}
-
-	// Check if the route pattern includes "/customers/"
-	if strings.Contains(c.FullPath(), "/customers/") {
-
-		if err := initializers.DB.Where("id = ?", id).Preload("Customer").Find(&invoices).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Invoices not found for the given ID"})
-			return
-		}
-
-		// Combine invoices and customer information in the response
-		response := gin.H{"invoices": invoices}
-		c.JSON(http.StatusOK, response)
-		return
-	}
-	if err := initializers.DB.First(&invoices, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Customer not found"})
-		return
-	}
-	c.JSON(http.StatusOK, invoices)
+	components.PaginateWithEmbed(c, query, &invoices, &invoicesCustomerType, embedType, embedField, id)
 }
 
 func CreateInvoice(c *gin.Context) {
