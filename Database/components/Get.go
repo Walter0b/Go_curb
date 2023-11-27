@@ -9,8 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// PaginateWithEmbed performs pagination on a GORM query with embedding and returns the paginated result.
-func PaginateWithEmbed(c *gin.Context, query *gorm.DB, results interface{}, resultsEmbed interface{}, embedType reflect.Type, embedField string, id string) {
+// Get performs pagination on a GORM query with embedding and returns the paginated result.
+func Get(c *gin.Context, query *gorm.DB, results interface{}, resultsEmbed interface{}, embedType reflect.Type, embedField string, id string) {
 
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil || page < 1 {
@@ -38,7 +38,7 @@ func PaginateWithEmbed(c *gin.Context, query *gorm.DB, results interface{}, resu
 		pageSize = pageSizeInt
 	}
 
-	// Now, use the pageSize in your pagination logic
+	// Pagination logic
 	offset := (page - 1) * pageSize
 
 	if embedField != "" {

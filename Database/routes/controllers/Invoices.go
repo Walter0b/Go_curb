@@ -22,7 +22,7 @@ func GetAllInvoices(c *gin.Context) {
 	query := initializers.DB.Model(&tableTypes.Invoice{}).Where("tag = '2'")
 	embedType := reflect.TypeOf(tableTypes.InvoiceCustomer{})
 	embedField := c.Query("embed")
-	components.PaginateWithEmbed(c, query, &invoices, &invoicesCustomerType, embedType, embedField, id)
+	components.Get(c, query, &invoices, &invoicesCustomerType, embedType, embedField, id)
 }
 
 func CreateInvoice(c *gin.Context) {

@@ -19,7 +19,7 @@ func GetAllCustomer(c *gin.Context) {
 	query := initializers.DB.Model(&tableTypes.Customer{})
 	embedType := reflect.TypeOf(tableTypes.CustomerEmbed{})
 	embedField := c.Query("embed")
-	components.PaginateWithEmbed(c, query, &customer, &CustomerType, embedType, embedField, id)
+	components.Get(c, query, &customer, &CustomerType, embedType, embedField, id)
 }
 
 func CreateCustomer(c *gin.Context) {

@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 func GetAllInvoicePayments(c *gin.Context) {
 
 	id := c.Query("id")
@@ -20,7 +19,7 @@ func GetAllInvoicePayments(c *gin.Context) {
 	query := initializers.DB.Model(&tableTypes.Invoice{}).Where("tag = '2'")
 	embedType := reflect.TypeOf(tableTypes.InvoicePaymentReceived{})
 	embedField := c.Query("embed")
-	components.PaginateWithEmbed(c, query, &invoices, &invoicesCustomerType, embedType, embedField,id)
+	components.Get(c, query, &invoices, &invoicesCustomerType, embedType, embedField, id)
 }
 
 // CreateInvoiceImputations handles the creation of invoice imputations

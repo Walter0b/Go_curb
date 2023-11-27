@@ -18,5 +18,5 @@ func GetAllItems(c *gin.Context) {
 	query := initializers.DB.Model(&tableTypes.AirBooking{}).Where("id_invoice IS NULL AND product_type = 'flight' AND transaction_type = 'sales' AND status = 'pending'")
 	embedType := reflect.TypeOf(tableTypes.AirBooking{})
 	embedField := c.Query("embed")
-	components.PaginateWithEmbed(c, query, &airBookings, &airBookingsEmbed, embedType, embedField, id)
+	components.Get(c, query, &airBookings, &airBookingsEmbed, embedType, embedField, id)
 }
