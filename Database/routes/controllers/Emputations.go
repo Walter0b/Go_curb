@@ -4,7 +4,6 @@ import (
 	"Go_curb/Database/components"
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
-	"log"
 	"net/http"
 	"reflect"
 
@@ -76,15 +75,17 @@ func CreateInvoiceImputations(c *gin.Context) {
 		if err := tx.Where("id_invoice = ? AND id_payment_received = ?", imputationInput.IDInvoice, imputationInput.IDPaymentReceived).First(&existingImputation).Error; err == nil {
 			// If an existing imputation is found, update and append to the updatedImputations slice
 
-			newUsedAmount := paymentDetails.UsedAmountFloat() + amountApplyFloat
+			oldUsedAmount := paymentDetails.UsedAmountFloat() - existingImputation.AmountApplyFloat()
 
-			newPaymentBalance := paymentDetails.AmountFloat() - newUsedAmount
+			oldPaymentBalance := paymentDetails.AmountFloat() + oldUsedAmount
 
-			if amountApplyFloat > newPaymentBalance {
+			if amountApplyFloat > oldPaymentBalance {
 				tx.Rollback()
 				c.JSON(http.StatusBadRequest, gin.H{"error": "Amount apply exceeds the payment balance"})
 				return
 			}
+			newUsedAmount := oldUsedAmount + amountApplyFloat
+			newPaymentBalance := paymentDetails.AmountFloat() - newUsedAmount
 
 			// Update payment with new imputation values
 			if err := tx.Model(&paymentDetails).Updates(map[string]interface{}{"used_amount": newUsedAmount, "balance": newPaymentBalance}).Error; err != nil {
@@ -94,7 +95,6 @@ func CreateInvoiceImputations(c *gin.Context) {
 			}
 			// AmountApplyFloat, _ := components.ConvertStringToFloat64(existingImputation.AmountApply)
 
-			log.Println("HEereakflknsdlknaodiznd :=> ", existingImputation)
 			// Update invoice with new imputation values
 			oldCreditApply := (invoiceDetails.CreditApplyFloat() - existingImputation.AmountApplyFloat())
 			oldBalance := invoiceDetails.AmountFloat() - oldCreditApply
