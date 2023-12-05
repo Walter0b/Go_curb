@@ -41,23 +41,3 @@ func ReplaceAllMultiple(chaine string, tabReplace map[string]string) string {
 
 	return result
 }
-
-// if embedField != "" {
-// 	// Use reflection to check if the specified association exists
-// 	if _, found := reflect.TypeOf(resultsEmbed).Elem().FieldByName(embedField); found {
-// 		// Check if the field is a slice or not
-// 		// Retrieve records with association
-// 		if err := query.Limit(pageSize).Offset(offset).Preload(embedField).Find(resultsEmbed).Error; err != nil {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 			return
-// 		}
-// 		results = resultsEmbed
-		
-// 	} else {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid association: %s", embedField)})
-// 		return
-// 	}
-// } else if err := query.Limit(pageSize).Offset(offset).Find(results).Error; err != nil {
-// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	
-// }

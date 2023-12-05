@@ -107,47 +107,6 @@ func CreateInvoice(c *gin.Context) {
 	c.JSON(http.StatusCreated, newInvoice)
 }
 
-// r.PUT("/invoices/:id", func(c *gin.Context) {
-// 	id := c.Query("id")
-
-// 	var updatedInvoice tableTypes.Invoice
-// 	if err := c.ShouldBindJSON(&updatedInvoice); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	var existingInvoice tableTypes.Invoice
-// 	if err := initializers.DB.First(&existingInvoice, id).Error; err != nil {
-// 		c.JSON(http.StatusNotFound, gin.H{"error": "Invoice not found"})
-// 		return
-// 	}
-
-// 	// Update fields
-// 	existingInvoice.DueDate = updatedInvoice.DueDate
-// 	existingInvoice.Tag = updatedInvoice.Tag
-
-// 	// Update related AirBookings
-// 	var airBookingIDs []int
-// 	for _, travelItem := range updatedInvoice.TravelItems {
-// 		airBookingIDs = append(airBookingIDs, travelItem.ID)
-// 	}
-
-// 	if err := initializers.DB.Model(&tableTypes.AirBooking{}).
-// 		Where("id IN (?)", airBookingIDs).
-// 		Updates(map[string]interface{}{"Status": "invoiced", "Id_invoice": existingInvoice.ID}).
-// 		Error; err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	if err := initializers.DB.Save(&existingInvoice).Error; err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, existingInvoice)
-// })
-
 func DeleteInvoices(c *gin.Context) {
 	id := c.Query("id")
 

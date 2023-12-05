@@ -1,0 +1,42 @@
+__emputationIn = id_payement, id_invoice, amount_apply // INPUT DATAS
+
+invoice = select * from "invoice" where id = __emputationIn.id_invoice
+
+payement = select * from "payement" where id = __emputationIn.id_payement
+
+if(__emputationIn.amount_apply > invoice.balance)
+{  
+    throw Error(" ") 
+}
+
+net_balance = payment.amount - payment.used_amount
+
+if(__emputationIn.amount_apply >  net_balance)
+{  
+    throw Error(" ") 
+}
+
+Transaction{
+    emputation =  select * from invoice_payement_receved where id_invoice = __emputationIn.id_invoice and id_payement = __emputationIn.id_payement
+
+    new_used_amount = payement.used_amount + __emputationIn.amount_apply //NEW USED_AMOUNT value
+
+    new_payment_balance = payment.amount - new_used_amount
+
+    new_credit_apply = credit_apply + __emputationIn.amount_apply 
+    
+    new_balance = invoice.Amount - new_credit_apply // new balance value
+
+   if(!emputation) // if not exist
+   {
+
+    update "payement" set ("used_amount") values (new_used_amount,new_payment_balance)
+
+    update "invoice" set ("balance") values (new_balance,new_credit_apply)
+
+    insert (id_payement, id_invoice, amount_apply) into "invoice_payement_receved" values(__emputationIn.id_payement, __emputationIn.id_invoice, __emputationIn.amount_apply)
+
+    return objectData
+
+   }so still while maintain it a psudo code can you make it more faithfull to what we are trying to accomplish?
+more accurate vairalble and all 

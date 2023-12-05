@@ -51,7 +51,8 @@
 --         'TMC123',
 --         52) RETURNING "id"
 --         ;
-INSERT INTO "invoice" (
+INSERT INTO
+        "invoice" (
                 "creation_date",
                 "invoice_number",
                 "status",
@@ -80,7 +81,8 @@ INSERT INTO "invoice" (
                 "is_opening_balance",
                 "tag"
         )
-VALUES (
+VALUES
+        (
                 '2023-11-16 12:25:37.128',
                 '',
                 'unpaid',
@@ -108,5 +110,35 @@ VALUES (
                 0,
                 false,
                 ''
-        )
-RETURNING "id"
+        ) RETURNING "id"
+SELECT
+        "id",
+        "creation_date",
+        "invoice_number",
+        "status",
+        "due_date",
+        "amount",
+        "balance",
+        "net_amount",
+        "tax_amount",
+        "base_amount",
+        "purchase_order",
+        "customer_notes",
+        "terms",
+        "terms_conditions",
+        "credit_apply",
+        "credit_used",
+        "email",
+        "printed_name",
+        "hidden_field",
+        "hidden_identifier",
+        "already_used",
+        "is_opening_balance",
+        "tag",
+        "id_customer"
+FROM
+        "invoice_payment_received"
+WHERE
+        tag = '2'
+LIMIT
+        7
