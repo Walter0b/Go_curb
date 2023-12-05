@@ -34,9 +34,15 @@ type PaymentReceived struct {
 	Tag                   string    `gorm:"column:tag;default:2"`
 }
 
+type PaymentCustomer struct {
+	PaymentReceived
+	Customer Customer `gorm:"primaryKey:CustomerID"`
+}
+
 func (PaymentReceived) TableName() string {
 	return "payment_received"
 }
+
 func (p *PaymentReceived) UsedAmountFloat() float64 {
 	usedAmountFloat, _ := components.ConvertStringToFloat64(p.UsedAmount)
 	return usedAmountFloat
