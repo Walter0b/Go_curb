@@ -16,7 +16,7 @@ import (
 func GetPayments(c *gin.Context) {
 	var payments []tableTypes.PaymentReceived
 	var paymentsEmbedded []tableTypes.PaymentCustomer
-	query := initializers.DB.Model(&tableTypes.PaymentReceived{}).Where("tag = '2'")
+	query := initializers.DB.Model(&tableTypes.PaymentReceived{}).Where("tag = '2'").Order("ID DESC")
 	embedType := reflect.TypeOf(tableTypes.PaymentCustomer{})
 	embedField := c.Query("embed")
 	id := c.Query("id")
