@@ -6,7 +6,6 @@ import (
 	"Go_curb/tableTypes"
 	"fmt"
 	"net/http"
-	"reflect"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,12 +14,11 @@ import (
 
 func GetPayments(c *gin.Context) {
 	var payments []tableTypes.PaymentReceived
-	var paymentsEmbedded []tableTypes.PaymentCustomer
 	query := initializers.DB.Model(&tableTypes.PaymentReceived{}).Where("tag = '2'").Order("ID DESC")
-	embedType := reflect.TypeOf(tableTypes.PaymentCustomer{})
+
 	embedField := c.Query("embed")
 	id := c.Query("id")
-	components.Get(c, query, &payments, &paymentsEmbedded, embedType, embedField, id)
+	components.Get(c, query, &payments, embedField, id)
 }
 
 func CreatePayments(c *gin.Context) {

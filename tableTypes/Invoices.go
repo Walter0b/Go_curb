@@ -6,35 +6,32 @@ import (
 )
 
 type Invoice struct {
-	ID               uint      `gorm:"column:id;primaryKey"`
-	CreationDate     time.Time `gorm:"column:creation_date;not null"`
-	InvoiceNumber    string    `gorm:"column:invoice_number;not null"`
-	Status           string    `gorm:"column:status;not null"`
-	DueDate          time.Time `gorm:"column:due_date"`
-	Amount           string    `gorm:"amount" gorm:"column:amount"`
-	Balance          string    `gorm:"column:balance"`
-	NetAmount        string    `gorm:"column:net_amount;not null"`
-	TaxAmount        string    `gorm:"column:tax_amount"`
-	BaseAmount       string    `gorm:"column:base_amount;not null"`
-	PurchaseOrder    string    `gorm:"column:purchase_order"`
-	CustomerNotes    string    `gorm:"column:customer_notes"`
-	Terms            int       `gorm:"column:terms"`
-	TermsConditions  string    `gorm:"column:terms_conditions"`
-	CreditApply      string    `gorm:"column:credit_apply;default:0"`
-	CreditUsed       string    `gorm:"column:credit_used;default:0"`
-	Email            string    `gorm:"column:email"`
-	PrintedName      string    `gorm:"column:printed_name"`
-	HiddenField      string    `gorm:"column:hidden_field"`
-	HiddenIdentifier string    `gorm:"column:hidden_identifier"`
-	AlreadyUsed      int       `gorm:"column:already_used;not null"`
-	IsOpeningBalance bool      `gorm:"column:is_opening_balance"`
-	Tag              string    `gorm:"column:tag;default:2"`
-	CustomerID       int       `gorm:"column:id_customer;"`
-}
-
-type InvoiceCustomer struct {
-	Invoice
-	Customer Customer `gorm:"primaryKey:CustomerID"`
+	ID               uint                     `gorm:"column:id;primaryKey"`
+	CreationDate     time.Time                `gorm:"column:creation_date;not null"`
+	InvoiceNumber    string                   `gorm:"column:invoice_number;not null"`
+	Status           string                   `gorm:"column:status;not null"`
+	DueDate          time.Time                `gorm:"column:due_date"`
+	Amount           string                   `gorm:"amount" gorm:"column:amount"`
+	Balance          string                   `gorm:"column:balance"`
+	NetAmount        string                   `gorm:"column:net_amount;not null"`
+	TaxAmount        string                   `gorm:"column:tax_amount"`
+	BaseAmount       string                   `gorm:"column:base_amount;not null"`
+	PurchaseOrder    string                   `gorm:"column:purchase_order"`
+	CustomerNotes    string                   `gorm:"column:customer_notes"`
+	Terms            int                      `gorm:"column:terms"`
+	TermsConditions  string                   `gorm:"column:terms_conditions"`
+	CreditApply      string                   `gorm:"column:credit_apply;default:0"`
+	CreditUsed       string                   `gorm:"column:credit_used;default:0"`
+	Email            string                   `gorm:"column:email"`
+	PrintedName      string                   `gorm:"column:printed_name"`
+	HiddenField      string                   `gorm:"column:hidden_field"`
+	HiddenIdentifier string                   `gorm:"column:hidden_identifier"`
+	AlreadyUsed      int                      `gorm:"column:already_used;not null"`
+	IsOpeningBalance bool                     `gorm:"column:is_opening_balance"`
+	Tag              string                   `gorm:"column:tag;default:2"`
+	CustomerID       int                      `gorm:"column:id_customer;"`
+	Imputation       []InvoicePaymentReceived `gorm:"foreignKey:IDInvoice" json:"Imputation,omitempty"`
+	Customer         *Customer                `gorm:"primaryKey:CustomerID" json:"Customer,omitempty"`
 }
 
 type RequestPayload struct {

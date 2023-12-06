@@ -5,7 +5,6 @@ import (
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
 	"net/http"
-	"reflect"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,11 +13,9 @@ func GetAllInvoicePayments(c *gin.Context) {
 
 	id := c.Query("id")
 	var invoices []tableTypes.InvoicePaymentReceived
-	var invoicesCustomerType []tableTypes.InvoicePaymentReceived
 	query := initializers.DB.Model(&tableTypes.InvoicePaymentReceived{}).Where("tag = '2'")
-	embedType := reflect.TypeOf(tableTypes.InvoicePaymentReceived{})
 	embedField := c.Query("embed")
-	components.Get(c, query, &invoices, &invoicesCustomerType, embedType, embedField, id)
+	components.Get(c, query, &invoices, embedField, id)
 }
 
 // CreateInvoiceImputations handles the creation of invoice imputations

@@ -27,12 +27,8 @@ type Customer struct {
 	Already_used      int64
 	Ab_key            string
 	Tmc_client_number string
-}
-
-type CustomerEmbed struct {
-	Customer
-	Invoices []Invoice         `gorm:"foreignKey:CustomerID"`
-	Payments []PaymentReceived `gorm:"foreignKey:CustomerID"`
+	Invoices          []Invoice         `gorm:"foreignKey:CustomerID" json:"Invoices, omitempty"`
+	Payments          []PaymentReceived `gorm:"foreignKey:CustomerID" json:"Payments, omitempty"`
 }
 
 func (Customer) TableName() string {

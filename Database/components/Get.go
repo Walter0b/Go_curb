@@ -10,8 +10,7 @@ import (
 )
 
 // Get performs pagination on a GORM query with embedding and returns the paginated result.
-func Get(c *gin.Context, query *gorm.DB, results interface{}, resultsEmbed interface{}, embedType reflect.Type, embedField string, id string) {
-
+func Get(c *gin.Context, query *gorm.DB, results interface{}, embedField string, id string) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil || page < 1 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
@@ -41,22 +40,26 @@ func Get(c *gin.Context, query *gorm.DB, results interface{}, resultsEmbed inter
 	// Pagination logic
 	offset := (page - 1) * pageSize
 
-	if embedField != "" {
-		if _, found := embedType.FieldByName(embedField); found {
-			// Check if the field is a slice or not
-
-			// Retrieve records with association
-			if err := query.Limit(pageSize).Offset(offset).Preload(embedField).Find(resultsEmbed, id).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
-
-			// Combine association and Invoice information in the response
-			results = resultsEmbed
-		}
-	} else if err := query.Limit(pageSize).Offset(offset).Find(results, id).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// Use reflection to check if the field exists
+	resultsValue := reflect.ValueOf(results)
+	if resultsValue.Kind() != reflect.Ptr || resultsValue.Elem().Kind() != reflect.Slice {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Results must be a pointer to a slice"})
 		return
+	}
+
+	sliceElemType := resultsValue.Elem().Type().Elem()
+	if _, found := sliceElemType.FieldByName(embedField); found {
+		// Retrieve records with association
+		if err := query.Limit(pageSize).Offset(offset).Preload(embedField).Find(results, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	} else {
+		// If the field is not found, fetch records without association
+		if err := query.Limit(pageSize).Offset(offset).Find(results, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 	}
 
 	// Create a response object with paginated data and metadata

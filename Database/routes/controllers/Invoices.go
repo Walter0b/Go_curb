@@ -6,7 +6,6 @@ import (
 	"Go_curb/tableTypes"
 	"log"
 	"net/http"
-	"reflect"
 	"strconv"
 	"time"
 
@@ -18,11 +17,9 @@ func GetAllInvoices(c *gin.Context) {
 
 	id := c.Query("id")
 	var invoices []tableTypes.Invoice
-	var invoicesCustomerType []tableTypes.InvoiceCustomer
 	query := initializers.DB.Model(&tableTypes.Invoice{}).Where("tag = '2'")
-	embedType := reflect.TypeOf(tableTypes.InvoiceCustomer{})
 	embedField := c.Query("embed")
-	components.Get(c, query, &invoices, &invoicesCustomerType, embedType, embedField, id)
+	components.Get(c, query, &invoices, embedField, id)
 }
 
 func CreateInvoice(c *gin.Context) {

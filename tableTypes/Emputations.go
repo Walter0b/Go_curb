@@ -6,8 +6,8 @@ import (
 )
 
 type InvoicePaymentReceived struct {
-	IDInvoice         int            `column:"id_invoice"`
-	IDPaymentReceived int            `column:"id_payment_received"`
+	IDInvoice         int            `column:"id_invoice;foreignKey:ID"`
+	IDPaymentReceived int            `gorm:"column:id_payment_received;foreignKey:ID"`
 	GainLossAmount    sql.NullString `gorm:"column:gain_loss_amount"`
 	AmountApply       string         `column:"amount_apply"`
 	GainLoss          string         `gorm:"column:gain_loss;default:gain"`

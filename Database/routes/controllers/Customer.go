@@ -5,7 +5,6 @@ import (
 	"Go_curb/Database/initializers"
 	"Go_curb/tableTypes"
 	"net/http"
-	"reflect"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,11 +14,10 @@ func GetAllCustomer(c *gin.Context) {
 
 	id := c.Query("id")
 	var customer []tableTypes.Customer
-	var CustomerType []tableTypes.CustomerEmbed
-	query := initializers.DB.Model(&tableTypes.Customer{})
-	embedType := reflect.TypeOf(tableTypes.CustomerEmbed{})
+
+	query := initializers.DB.Model(&tableTypes.Customer{}).Order("Customer_name ASC")
 	embedField := c.Query("embed")
-	components.Get(c, query, &customer, &CustomerType, embedType, embedField, id)
+	components.Get(c, query, &customer, embedField, id)
 }
 
 func CreateCustomer(c *gin.Context) {
