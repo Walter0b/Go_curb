@@ -47,6 +47,7 @@ func Api(r *gin.Engine) {
 	//-------------------- Imputation --------------------------||
 
 	r.GET("/imputations", controllers.GetAllInvoicePayments)
+	r.GET("/imputation", controllers.GetInvoicePayments)
 	r.POST("/imputations", controllers.CreateInvoiceImputations)
 
 	//-------------------- Imputation --------------------------||

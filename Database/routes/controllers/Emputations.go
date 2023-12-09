@@ -17,7 +17,15 @@ func GetAllInvoicePayments(c *gin.Context) {
 	embedField := c.Query("embed")
 	components.Get(c, query, &invoices, embedField, id)
 }
+func GetInvoicePayments(c *gin.Context) {
 
+	idp := c.Query("idPayment")
+	idi := c.Query("idInovoice")
+	var invoices []tableTypes.InvoicePaymentReceived
+	query := initializers.DB.Model(&tableTypes.InvoicePaymentReceived{}).Where("id_payment_received = ?", idp).Where("id_invoice = ?", idi)
+	embedField := c.Query("embed")
+	components.Get(c, query, &invoices, embedField, "")
+}
 // CreateInvoiceImputations handles the creation of invoice imputations
 func CreateInvoiceImputations(c *gin.Context) {
 	var imputations []tableTypes.InvoicePaymentReceived
